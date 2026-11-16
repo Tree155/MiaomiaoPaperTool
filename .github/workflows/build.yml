@@ -31,6 +31,9 @@ jobs:
           cache-dependency-path: 源码/requirements.txt
 
       - name: 安装依赖
+        # runner 默认用 PowerShell，中文路径会按系统代码页解码成乱码，pip 找不到文件；
+        # Git Bash（MSYS2）是 UTF-8，所以含中文路径的步骤统一指定 bash
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install -r 源码/requirements.txt pyinstaller
@@ -48,6 +51,7 @@ jobs:
 
       - name: 打包 exe（中文版）
         if: steps.lang.outputs.lang == 'zh'
+        shell: bash
         working-directory: 源码
         # 注意：--add-data 在 Windows 上用分号分隔（Linux 是冒号）
         run: >
@@ -61,6 +65,7 @@ jobs:
 
       - name: 打包 exe（英文版）
         if: steps.lang.outputs.lang == 'en'
+        shell: bash
         working-directory: 源码/en
         # 英文版是独立构建：源码在 源码/en/，界面/日志/报错全英文
         run: >
@@ -73,7 +78,7 @@ jobs:
           desktop.py
 
       - name: 组装发布包
-        shell: pwsh
+        shell: bash
         # 用 Python 打包：Compress-Archive 对中文文件名按系统代码页写，容易乱码
         run: python 源码/pack_release.py ${{ steps.lang.outputs.lang }} ${{ github.ref_name }}
 
