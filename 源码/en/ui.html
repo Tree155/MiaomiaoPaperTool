@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<!--
+  Miaomiao Paper Tool v1.4.2 -- UI
+
+  Authors: Ni, Yishu & Da Feiyu (WorkBuddy . DeepSeek)
+  Copyright (c) 2026 Ni, Yishu
+  For learning and academic exchange only. Commercial use is prohibited.
+
+  All full texts are obtained through public publisher APIs or open access channels.
+  No access control is bypassed.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Miaomiao Paper Tool v1.4.2</title>
+<style>
+  :root{
+    --bg:#f6f6f3; --card:#fff; --line:#e2e2dc; --line2:#efefe9;
+    --ink:#1f2328; --ink2:#5c6166; --ink3:#8b9095;
+    --accent:#4f6228; --accent-l:#eef1e6;
+    --ok:#2e7d32; --warn:#b26a00; --bad:#b3261e;
+  }
+  *{box-sizing:border-box}
+  html{height:100%}
+  body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+       display:flex;flex-direction:column;
+       font:14px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{width:100%;max-width:1180px;margin:0 auto;padding:22px 20px 20px;
+        flex:1;min-height:0;display:flex;flex-direction:column}
+
+  header{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px}
+  .sub{color:var(--ink3);font-size:12.5px}
+  .badges{display:flex;gap:6px;margin:10px 0 16px;flex-wrap:wrap;
+          align-items:center;position:relative}
+  .acctwrap{position:relative;display:inline-flex}
+  .bd.acct{cursor:pointer;user-select:none;gap:6px}
+  .bd.acct:hover{background:#eef1e4;border-color:var(--accent)}
+  .acctpop{position:absolute;top:calc(100% + 7px);left:0;z-index:90;
+           background:#fff;border:1px solid var(--line2);border-radius:10px;
+           box-shadow:0 10px 30px rgba(0,0,0,.13);padding:11px;min-width:340px}
+  .acctpop[hidden]{display:none}
+  .ap-title{font-size:12px;color:var(--ink3);margin:1px 0 8px}
+  .ap-item{display:flex;justify-content:space-between;gap:12px;align-items:center;
+           padding:8px 10px;border-radius:7px;cursor:pointer}
+  .ap-item:hover{background:#f6f7f2}
+  .ap-item.on{background:var(--accent-l)}
+  .ap-item .nm{font-weight:600;color:var(--ink);font-size:13px}
+  .ap-item .sub{font-size:11.5px;color:var(--ink3);margin-top:2px;
+                font-family:ui-monospace,Consolas,monospace}
+  .ap-item .qt{font-size:12px;color:var(--ink2);white-space:nowrap;
+               font-variant-numeric:tabular-nums}
+  .ap-sep{height:1px;background:var(--line2);margin:9px 0}
+  .ap-add{display:flex;flex-direction:column;gap:7px}
+  .ap-add input{font-size:12.5px;padding:6px 9px}
+  .ap-row{display:flex;gap:7px}
+  .ap-row input{flex:1;min-width:0}
+  .ap-note{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:9px;
+           padding-top:9px;border-top:1px dashed var(--line2)}
+  .ap-note a{color:var(--accent)}
+  /* ---- Export table popover ---- */
+  .expwrap{position:relative;display:inline-flex}
+  .exppop{position:absolute;bottom:calc(100% + 8px);left:0;z-index:95;
+          background:#fff;border:1px solid var(--line2);border-radius:10px;
+          box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px;width:336px;
+          max-width:calc(100vw - 36px)}
+  .exppop[hidden]{display:none}
+  .exppop.right{left:auto;right:0}
+  /* Citation expansion carries a lot of explanatory text; when narrow it squeezes into one character per line, so this one is wider */
+  #citePop{width:400px}
+  /* Organize downloads shows filenames and paths, so a bit wider */
+  #orgPop{width:440px}
+  .exppop.down{top:calc(100% + 8px);bottom:auto}
+  .exchip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
+          border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--ink2);
+          cursor:pointer;user-select:none}
+  .exchip:hover{border-color:var(--accent)}
+  .exchip.on{background:var(--accent-l);border-color:var(--accent);color:var(--accent);font-weight:600}
+  .exchip.off{opacity:.4;cursor:not-allowed}
+  .exrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+  .exmsg{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:10px;
+         padding-top:10px;border-top:1px dashed var(--line2)}
+  .exbar{display:flex;gap:8px;margin-top:11px;align-items:center}
+  .exbar button{padding:6px 14px;font-size:12.5px;border-radius:6px}
+  .ap-warn{color:#a33}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:0 0 auto}
+  .dot.ok{background:#5c8a1e}.dot.warn{background:#c99a19}.dot.bad{background:#c0392b}
+  .fmt-item{display:flex;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;
+            align-items:flex-start}
+  .fmt-item:hover{background:#f6f7f2}
+  .fmt-item.on{background:var(--accent-l)}
+  .fmt-item input[type=radio]{margin-top:3px;pointer-events:none}
+  .fmt-item .fn{font-weight:600;font-size:13px;color:var(--ink)}
+  .fmt-item .fd{font-size:11.5px;color:var(--ink3);line-height:1.6;margin-top:2px}
+  .fmt-item .fc{font-size:11.5px;color:var(--ink2);margin-top:3px}
+  .fmt-sw{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12.5px;
+          color:var(--ink2);cursor:pointer;user-select:none}
+  .bd.ver{font-size:11.5px;color:var(--ink3);cursor:pointer;font-variant-numeric:tabular-nums}
+  .bd.ver:hover{color:var(--accent);border-color:var(--accent)}
+  /* Translated title + journal metrics */
+  .zh{color:var(--ink2);font-size:12.5px;line-height:1.45;margin-top:3px;display:none}
+  .zh.on{display:block}
+  .ifv{font-variant-numeric:tabular-nums;color:var(--ink);font-size:12.5px;text-align:right}
+  .cas{display:inline-block;font-size:11px;padding:1px 6px;border-radius:9px;white-space:nowrap}
+  .cas.z1{background:#fdecea;color:#b3271e}
+  .cas.z2{background:#fdf4e3;color:#a5651a}
+  .cas.z3{background:#eef2f9;color:#3d5c8a}
+  .cas.z4{background:#f2f2ee;color:#7a7a72}
+  .cas.top{box-shadow:inset 0 0 0 1px currentColor}
+  .dim{color:#bcbcb3}
+  .jmkey{font-size:12.5px;padding:6px 9px;width:100%}
+  /* Abstract + DOI link */
+  .absbox{margin-top:4px}
+  .absbox>summary{cursor:pointer;font-size:11.5px;color:var(--ink3);user-select:none;
+                  outline:none;display:inline-block;padding:1px 0}
+  .absbox>summary:hover{color:var(--accent)}
+  .absbox[open]>summary{color:var(--accent)}
+  .absen{font-size:12px;line-height:1.65;color:var(--ink2);margin-top:5px;max-height:132px;
+         overflow:auto;background:#fbfbf8;border:1px solid var(--line2);border-radius:6px;
+         padding:8px 10px;white-space:normal}
+  .abszh{font-size:12.5px;line-height:1.75;color:var(--ink);margin-top:5px;max-height:160px;
+         overflow:auto;background:#fdfcf3;border:1px solid #e9e5d2;border-radius:6px;
+         padding:8px 10px;white-space:pre-wrap}
+  a.doilink{color:var(--accent);text-decoration:none;font-family:ui-monospace,Consolas,monospace;
+            font-size:11.5px}
+  a.doilink:hover{text-decoration:underline}
+  .absbar{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .absbar[hidden]{display:none}
+  .abstr{font-size:11.5px;padding:3px 10px;border-radius:5px;background:#fff;color:var(--accent);
+         border:1px solid var(--accent);cursor:pointer}
+  .abstr:hover{background:var(--accent-l)}
+  .abstr:disabled{opacity:.5;cursor:default}
+  .abstip{font-size:11px;color:var(--ink3)}
+  .about-hd{font-size:14.5px;font-weight:600;color:var(--ink)}
+  .about-hd span{color:var(--ink3);font-weight:400;font-size:12.5px;margin-left:6px}
+  .about-meta{font-size:12.5px;color:var(--ink2);margin-top:9px;line-height:1.9}
+  .about-law{font-size:12px;color:var(--ink2);line-height:1.8;margin-top:10px;
+             padding:9px 11px;background:#fdf8ee;border:1px solid #f0e4c8;border-radius:7px}
+  .about-law b{color:#a5651a}
+  .bd{font-size:11.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);
+      background:var(--card);color:var(--ink2)}
+  .bd.on{background:var(--accent-l);border-color:#cfd8bb;color:var(--accent)}
+  .bd.off{background:#fdf3e7;border-color:#f0dcc0;color:var(--warn)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .bar{display:flex;flex-direction:column;gap:9px;padding:14px}
+  .brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .brow #q{flex:1 1 320px;min-width:180px}
+  .fl{display:flex;align-items:center;gap:6px;color:var(--ink2);
+      font-size:13px;white-space:nowrap;user-select:none}
+  select{border:1px solid var(--line2);background:#fff;color:var(--ink);
+         border-radius:6px;padding:6px 7px;font:inherit;font-size:13px;cursor:pointer}
+  button.sm{padding:6px 12px;font-size:12.5px;border-radius:6px;flex:0 0 auto;
+            align-self:auto;background:#fff;color:var(--accent)}
+  button.sm:hover{background:#eaf1dd}
+  .syntax{background:#fbfbf8;border:1px solid var(--line2);border-radius:8px;
+          padding:11px 14px;font-size:12.5px;line-height:1.9;color:var(--ink2)}
+  .syntax b{color:var(--ink)}
+  .syntax code{background:#eef1e4;color:var(--accent);padding:1px 6px;border-radius:4px;
+               font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .eg{display:inline-block;background:#fff;border:1px solid var(--line2);
+      border-radius:5px;padding:3px 9px;margin:3px 6px 3px 0;cursor:pointer;
+      font-size:12px;color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+  .eg:hover{background:#eaf1dd;border-color:var(--accent);color:var(--accent)}
+  .errbox{color:#a33;background:#fdf2f2;border:1px solid #f0d5d5;white-space:pre-wrap;
+          border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.8}
+  .errtip{margin-top:10px;padding-top:9px;border-top:1px dashed #e2cccc;
+          color:#777;font-size:12.5px;white-space:normal}
+  .find{flex:0 1 250px;min-width:130px}
+  .ltbl{width:100%;border-collapse:collapse;font-size:13px}
+  .ltbl thead th{position:sticky;top:0;z-index:2;background:#f1f3e9;color:var(--ink2);
+                 font-size:12px;font-weight:600;text-align:left;padding:9px 10px;
+                 border-bottom:1px solid var(--line2)}
+  .ltbl tbody td{padding:10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  .ltbl tbody tr:hover{background:#fbfbf8}
+  .ltbl details summary{cursor:pointer;color:var(--accent);font-size:12px;
+                        margin-top:6px;user-select:none;outline:none}
+  .ltbl a{color:var(--accent);text-decoration:none}
+  .ltbl a:hover{text-decoration:underline}
+  .abs{color:var(--ink2);font-size:12.5px;line-height:1.75;margin-top:8px;
+       padding:9px 11px;background:#fbfbf8;border:1px solid var(--line2);border-radius:6px}
+  input[type=text],input[type=number]{
+    border:1px solid var(--line);border-radius:7px;padding:8px 11px;font:inherit;
+    background:#fff;color:var(--ink);outline:none}
+  input[type=text]:focus,input[type=number]:focus{border-color:var(--accent)}
+  #q{flex:1 1 320px;min-width:190px}
+  .yr{width:82px}
+  .num{width:70px}
+  button{border:1px solid var(--accent);background:var(--accent);color:#fff;
+         border-radius:7px;padding:8px 16px;font:inherit;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.ghost{background:#fff;color:var(--accent)}
+  .chk{display:flex;align-items:center;gap:5px;color:var(--ink2);font-size:13px;user-select:none}
+
+  .tbl{margin-top:14px;overflow:auto;border-radius:10px;width:100%;
+       flex:1 1 auto;min-height:120px}
+  .tbl > table{min-width:100%}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{position:sticky;top:0;background:#fafaf7;text-align:left;font-weight:600;
+           color:var(--ink2);padding:9px 10px;border-bottom:1px solid var(--line);
+           font-size:12px;white-space:nowrap;z-index:1}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:#fbfbf8}
+  tbody tr.sel{background:var(--accent-l)}
+  .t{line-height:1.4;color:var(--ink)}
+  .j{color:var(--ink3);font-size:12px;margin-top:2px}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px}
+  .pill.oa{background:#e7f3e8;color:var(--ok)}
+  .pill.sub{background:#f2f2ee;color:var(--ink3)}
+  .pill.rev{background:#f3ece2;color:#8a5a1e;margin-right:5px}
+  .pill.mild{background:#ecece2;color:#6b6b5c;margin-right:5px}
+  .pill.seed{background:#eef1e6;color:#4f6228;margin-right:5px}
+  .mesh{margin-top:4px;line-height:1.9}
+  .mesh span{display:inline-block;font-size:10.5px;color:#6b6b5c;background:#f4f4ee;
+             border-radius:3px;padding:0 5px;margin:0 4px 2px 0}
+  .num-r{text-align:right;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+  .foot{flex:0 0 auto;margin-top:12px}
+  .footin{display:flex;flex-direction:column;gap:10px;padding:14px}
+  .logs{width:100%;min-width:0;height:76px;overflow:auto;background:#fbfbf8;border:1px solid var(--line2);
+        border-radius:8px;padding:9px 11px;font:12px/1.6 ui-monospace,Consolas,monospace;
+        white-space:pre-wrap;color:var(--ink2)}
+  .side{width:100%;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}
+  .side button{flex:0 0 auto;align-self:stretch}
+  .side .prog{flex:1 1 150px;min-width:100px}
+  .side .stat{flex:0 0 auto;gap:6px}
+  .side .stat span{color:var(--ink3)}
+  .side .hint{flex:1 1 100%;margin-top:-2px}
+  .prog{height:7px;background:#ecece5;border-radius:5px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+  .stat{font-size:12px;color:var(--ink2);display:flex;justify-content:space-between}
+  .stat b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .hint{font-size:11.5px;color:var(--ink3);line-height:1.5}
+  .err{color:var(--bad)}
+  .empty{padding:36px;text-align:center;color:var(--ink3);font-size:13px}
+  td .t{word-break:break-word}
+
+    .yr,.num{flex:0 0 auto}
+  }
+  /* Tabs */
+  .tabs{display:flex;gap:2px;margin:0 0 12px;border-bottom:1px solid var(--line)}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--ink3);
+       padding:9px 15px;font-size:13.5px;cursor:pointer;border-radius:0;margin-bottom:-1px}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+  .tab .cnt{font-size:11px;background:var(--accent-l);color:var(--accent);
+            padding:1px 6px;border-radius:8px;margin-left:5px}
+  .libbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px}
+  tr.librow{cursor:pointer}
+  tr.librow:hover td{background:#fbfbf5}
+  .pill.zot{background:#e7ecf7;color:#3d5c8a}
+  /* ---- Library search ---- */
+  .kcard{background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:9px 12px}
+  .kcard:hover{border-color:var(--accent)}
+  .kcard .kt{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.45;cursor:pointer}
+  .kcard .kt:hover{text-decoration:underline}
+  .kcard .km{font-size:12px;color:var(--ink3);margin-top:3px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .kcard .ks{font-size:12.5px;color:var(--ink2);margin-top:7px;line-height:1.62;
+             background:#fafaf5;border-left:2px solid var(--line);padding:6px 9px;border-radius:0 5px 5px 0}
+  .kcard .ks b{color:var(--accent);background:#eef1e6;padding:0 2px;border-radius:3px}
+  .kbar{height:3px;background:#ecece5;border-radius:2px;overflow:hidden;width:54px;display:inline-block;vertical-align:middle}
+  .kbar i{display:block;height:100%;background:var(--accent)}
+  .libpath{flex:1 1 300px;min-width:0;font-size:12.5px;color:var(--ink2);
+           word-break:break-all;line-height:1.6}
+  .libpath b{color:var(--ink);font-weight:600;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .libstat{font-size:12px;color:var(--ink3);margin-top:3px}
+  .pane{flex:1;min-height:0;display:flex;flex-direction:column}
+  .pane[hidden]{display:none}
+
+  /* ---- English UI tweaks (English strings are ~1.6x wider than Chinese) ---- */
+  #btnSearch{flex:0 0 auto;min-width:96px}
+  .yr{width:88px}
+  #citePop{width:440px}
+  #orgPop{width:480px}
+  .acctpop{min-width:360px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Miaomiao Paper Tool</h1>
+    <span class="sub">Official APIs + open access channels · no access controls bypassed</span>
+  </header>
+  <div class="badges" id="badges"></div>
+
+  <nav class="tabs">
+    <button class="tab on" data-pane="search">Search & Download</button>
+    <button class="tab" data-pane="lib">Library<span class="cnt" id="libCnt"></span></button>
+    <button class="tab" data-pane="find">Library Search</button>
+  </nav>
+
+  <div class="pane" id="pane-search">
+
+  <div class="card">
+    <div class="bar">
+      <div class="brow">
+        <input id="q" type="text" placeholder="shrimp AND (aroma OR flavor) · Boolean queries / paste a title / paste a DOI">
+        <label class="fl">Sort
+          <select id="sort" title="Order of results">
+            <option value="relevance" selected>Relevance</option>
+            <option value="cited_desc">Citations high→low</option>
+            <option value="cited_asc">Citations low→high</option>
+            <option value="date_desc">Year new→old</option>
+            <option value="date_asc">Year old→new</option>
+          </select>
+        </label>
+        <button id="btnSearch">Search</button>
+      </div>
+      <div class="brow">
+        <label class="fl">Field
+          <select id="field" title="Field searched by default">
+            <option value="all" selected>Any field</option>
+            <option value="tiab">Title + abstract</option>
+            <option value="title">Title</option>
+            <option value="abstract">Abstract</option>
+            <option value="fulltext">Full text</option>
+          </select>
+        </label>
+        <label class="fl">Default operator
+          <select id="op" title="Operator used when AND/OR is omitted">
+            <option value="AND" selected>AND</option>
+            <option value="OR">OR</option>
+          </select>
+        </label>
+        <input id="y1" class="yr" type="number" placeholder="From">
+        <input id="y2" class="yr" type="number" placeholder="To">
+        <input id="lim" class="num" type="number" value="100" min="1" max="1000" title="How many records to fetch (max 1000; more than 200 needs an OpenAlex key)">
+        <label class="fl">Type
+          <select id="dtype" title="Which types to include: research article / review / dissertation / preprint…">
+            <option value="article" selected>Research article</option>
+            <option value="review">Review</option>
+            <option value="article+review">Research article + review</option>
+            <option value="dissertation">Dissertation</option>
+            <option value="preprint">Preprint</option>
+            <option value="book-chapter">Book chapter</option>
+            <option value="all">Any type</option>
+          </select>
+        </label>
+        <label class="chk"><input id="oa" type="checkbox"> OA only</label>
+        <button id="btnHelp" class="sm">Syntax</button>
+      </div>
+      <div class="syntax" id="syntax" hidden>
+        <b>Operators</b> (any case; keep a space around them)<br>
+        <code>AND</code> Both terms required <code>OR</code> Either term is enough 
+        <code>NOT</code> OR prefix <code>-</code> Exclude <code>( )</code> Grouping changes precedence<br>
+        <b>Field prefix</b> (overrides the Field dropdown above)<br>
+        <code>title:</code> Title <code>abstract:</code> Abstract 
+        <code>tiab:</code> Title + abstract <code>fulltext:</code> Full text<br>
+        <b>Exact phrase:</b> use English double quotes: <code>"lipid oxidation"</code> 
+        Without quotes, terms are tokenized and matches get much looser<br>
+        <b>Direct lookup</b>: paste a DOI (<code>10.1111/ijfs.15747</code> or <code>https://doi.org/…</code>), 
+        <code>W…</code> (OpenAlex ID), <code>pmid:12345</code> also work - it looks up that exact record instead of running a keyword search<br>
+        <b>Wildcards</b> <code>*</code>  matches any suffix, <code>?</code> matches a single character.
+        Only valid at the end of a term; the app switches to the non-stemmed exact field automatically:<br>
+        <code>tiab:shrim*</code> → also matches shrimp / shrimps / shrimplike · 
+        <code>title:antioxid*</code> → antioxidant / antioxidants / antioxidative<br>
+        <span style="color:#999">Note: OpenAlex already stems ordinary terms (shrimp and shrimps give the same results),
+        so wildcards are mainly for word forms that differ a lot under one root</span><br>
+        <b>Document types</b> (the Type dropdown above; applies at search time)<br>
+        Research article / review / dissertation / preprint / book chapter / any type.
+        Reviews are only returned when selected on their own - the default used to be research articles only, so reviews were unreachable.<br>
+        <span style="color:#999">Note: OpenAlex tags reviews incompletely (many are labelled research articles),
+        so selecting Review alone returns fewer results; use Research article + review for better coverage.
+        Items titled review / survey / overview but labelled as research articles get a gray "Possible review" tag in the list</span><br>
+        <b>Click to fill the search box</b> (it does not search right away, so you can edit first)<br>
+        <span class="eg" data-q="shrimp AND aroma">shrimp AND aroma</span>
+        <span class="eg" data-q="shrimp AND (aroma OR flavor)">shrimp AND (aroma OR flavor)</span>
+        <span class="eg" data-q="shrimp AND NOT fish">shrimp AND NOT fish</span>
+        <span class="eg" data-q="title:shrimp AND abstract:aroma">title:shrimp AND abstract:aroma</span>
+        <span class="eg" data-q='"lipid oxidation" AND (shrimp OR prawn)'>&quot;lipid oxidation&quot; AND (shrimp OR prawn)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card tbl" id="tblBox">
+    <div class="empty">Enter keywords, then click Search<br><span style="font-size:12px">Supports AND / OR / NOT and parentheses; Chinese can be typed directly and is converted to English first; click Syntax on the right for examples</span></div>
+  </div>
+
+  <div class="card foot">
+    <div class="footin">
+      <div class="logs" id="logs">Waiting…</div>
+      <div class="side">
+        <button id="btnFetch" disabled>Download selected</button>
+        <span class="expwrap">
+          <button id="btnExport" class="sm" disabled
+                  title="Export results to Excel / CSV with IF, CAS quartile and DOI">Export table</button>
+          <div class="exppop" id="exPop" hidden></div>
+        </span>
+        <button id="btnOpenAll" class="sm" disabled title="Open all results of this search in a separate window">Open all</button>
+        <span class="expwrap">
+          <button id="btnCites" class="sm" disabled
+                  title="Use the selected papers as seeds to find what cites them and what they cite (no more keywords needed)">Citation expansion</button>
+          <div class="exppop right" id="citePop" hidden></div>
+        </span>
+        <button id="btnBack" class="sm" hidden title="Back to the keyword results">Back to keyword results</button>
+        <div class="prog"><i id="progBar"></i></div>
+        <div class="stat"><span>Progress</span><b id="pDone">0 / 0</b></div>
+        <div class="stat"><span>Success</span><b id="pOk">0</b></div>
+        <div class="stat"><span>No source</span><b id="pMiss">0</b></div>
+        <div class="hint" id="hint">Select items to start downloading. Files are saved in the app folder's <code>library/</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /pane-search -->
+
+  <div class="pane" id="pane-lib" hidden>
+    <div class="card">
+      <div class="libbar" style="padding-bottom:6px">
+        <div class="libpath">
+          Library: <b id="libPath">Loading…</b>
+          <div class="libstat" id="libStat">Click Scan to index the PDFs in the library</div>
+        </div>
+        <button id="btnScan">Scan</button>
+        <button class="ghost" id="btnAddSrc">Add folder</button>
+        <button class="ghost" id="btnOpenLib">Open folder</button>
+        <button class="ghost" id="btnLibExport" disabled
+                title="Export the filtered list to Excel (file name / title / DOI / size / modified)">Export list</button>
+        <span class="expwrap">
+          <button class="ghost" id="btnOrganize"
+                  title="Recognise PDFs downloaded by hand into the Downloads folder, rename them and move them into the library">Organize Downloads</button>
+          <div class="exppop right down" id="orgPop" hidden></div>
+        </span>
+        <span class="expwrap">
+          <button class="ghost" id="btnZot" title="Local Zotero integration: see what is already in Zotero and generate an import file with collections">Zotero</button>
+          <div class="exppop right down" id="zotPop" hidden></div>
+        </span>
+      </div>
+      <div class="libbar" style="padding-top:0">
+        <input id="libQ" class="find" placeholder="Filter by file name / title / DOI / folder" style="flex:1 1 260px">
+        <select id="libSort" title="Sort list">
+          <option value="name">By file name</option>
+          <option value="mtime">By modified date (new→old)</option>
+          <option value="size">By size (large→small)</option>
+          <option value="doi">Missing DOI first</option>
+        </select>
+      </div>
+    </div>
+    <div class="card tbl" id="libBox">
+      <div class="empty">Click Scan to index the PDF / XML files in the library<br>
+        <span style="font-size:12px">Downloaded files are stored here automatically; PDFs from Zotero or elsewhere can be added with Add folder</span></div>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-find" hidden>
+    <div class="card">
+      <div class="libbar" style="padding-bottom:6px">
+        <div class="libpath">
+          Library Search: searches<strong> library abstracts</strong>, <strong>your own notes</strong>, <strong>last search results</strong>
+          <div class="libstat" id="kStat">Index not built yet</div>
+        </div>
+        <span class="expwrap">
+          <button class="ghost" id="btnNotes" title="Which note folders Library Search should index">Notes folders</button>
+          <div class="exppop right down" id="notesPop" hidden></div>
+        </span>
+        <button class="ghost" id="btnKBuild" title="Scan library / notes / last results and rebuild the index">Rebuild index</button>
+      </div>
+      <div class="libbar" style="padding-top:0">
+        <input id="kq" class="find" placeholder="pyrazine lipid oxidation / pyrazine / vacuum 70℃ (Chinese or English both fine)" style="flex:1 1 320px">
+        <button id="btnKSearch">Search</button>
+        <select id="kLimit" title="Results">
+          <option>20</option><option selected>30</option><option>60</option>
+        </select>
+      </div>
+    </div>
+    <div class="card tbl" id="kBox">
+      <div class="empty">Just ask, e.g. "pyrazine and lipid oxidation", "vacuum 70℃ aldehydes", "TBARS fishy odour"<br>
+        <span style="font-size:12px">Chinese is converted to English through a glossary and searched too, so both English abstracts and Chinese notes can match; subscription full text is not indexed</span></div>
+    </div>
+  </div>
+  <div class="pane" id="pane-list" hidden>
+    <div class="card">
+      <div class="libbar">
+        <div class="libpath">
+          All search results: <b id="listCount">—</b>
+          <div class="libstat" id="listHint">Full list, using the conditions and sort order of the last search</div>
+        </div>
+        <input id="listFind" class="find" placeholder="Filter results by title / abstract / journal">
+      </div>
+    </div>
+    <div class="card tbl" id="listBox"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let rows = [], sel = new Set(), polling = null, STG = {};
+
+async function jget(u){ const r = await fetch(u); return r.json(); }
+async function jpost(u, b){
+  const r = await fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)});
+  return r.json();
+}
+
+function log(t){
+  const el = $('#logs');
+  el.textContent = t.join('\n');
+  el.scrollTop = el.scrollHeight;
+}
+
+let ACCTS = [], QUOTA = {};
+
+function fmtUsd(v){
+  v = v || 0;
+  return v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+}
+
+function quotaState(){
+  if(QUOTA.error) return 'bad';
+  const lim = QUOTA.limit_usd || 0, rem = QUOTA.remaining_usd || 0;
+  if(!lim) return 'bad';
+  if(rem <= 0) return 'bad';
+  return (rem / lim < 0.2) ? 'warn' : 'ok';
+}
+
+function refreshChip(){
+  const chip = $('#acctChip');
+  if(!chip) return;
+  const a = ACCTS.find(x => x.active) || {};
+  const name = a.label || 'Shared quota';
+  let dot = 'ok', txt;
+  if(QUOTA.error){
+    // The backend sends "exception class: message"; slicing to 14 chars leaves only the class name (QuotaExceeded / RuntimeError)
+    // Those words mean nothing to users. Turn it into plain language; the full message stays in the chip's title
+    dot = 'bad';
+    txt = name + ' · ' + (/QuotaExceeded/.test(QUOTA.error) ? 'Quota used up' : 'Check failed');
+  } else if(!QUOTA.limit_usd){
+    dot = 'warn'; txt = name + ' · Quota unknown';
+  } else {
+    dot = quotaState();
+    txt = name + ' · ' + fmtUsd(QUOTA.remaining_usd) + '/' + fmtUsd(QUOTA.limit_usd);
+  }
+  chip.innerHTML = '<span class="dot ' + dot + '"></span>' + esc(txt) + ' ▾';
+  chip.title = QUOTA.error ? QUOTA.error
+    : 'Remaining today ' + fmtUsd(QUOTA.remaining_usd) + ' / ' + fmtUsd(QUOTA.limit_usd) + ' USD'
+      + '(' + (QUOTA.remaining_calls || 0) + ' requests), ' + (QUOTA.reset ? (QUOTA.reset/3600).toFixed(1) + ' h to reset' : '')
+      + '\nClick to switch account';
+}
+
+async function loadQuota(force){
+  try{
+    QUOTA = await jget('/api/quota' + (force ? '?force=1' : ''));
+    if(QUOTA.accounts) ACCTS = QUOTA.accounts;
+  }catch(e){
+    QUOTA = {error: 'Read failed'};
+  }
+  refreshChip();
+  const pop = $('#acctPop');
+  if(pop && !pop.hidden) renderPop();
+}
+
+function renderPop(){
+  const pop = $('#acctPop');
+  if(!pop) return;
+  const rows = ACCTS.map(a => {
+    let qt = 'Click to switch';
+    if(a.active){
+      if(QUOTA.error) qt = '<span class="ap-warn">' + esc(QUOTA.error.slice(0, 22)) + '</span>';
+      else if(QUOTA.limit_usd) qt = fmtUsd(QUOTA.remaining_usd) + ' / ' + fmtUsd(QUOTA.limit_usd);
+      else qt = '—';
+    }
+    return `<div class="ap-item ${a.active ? 'on' : ''}" data-idx="${a.index}">
+      <div><div class="nm">${esc(a.label)}${a.active ? ' ✓' : ''}</div>
+        <div class="sub">${esc(a.email || 'no email')} · …${esc(a.tail)}</div></div>
+      <div class="qt">${qt}</div></div>`;
+  }).join('');
+
+  pop.innerHTML = `
+    <div class="ap-title">OpenAlex accounts · each key gets its own $1/day</div>
+    ${rows || '<div class="ap-note" style="margin:0">No key configured yet — using the shared quota of your egress IP ($0.10/day, easily drained by others on the same network)</div>'}
+    <div class="ap-sep"></div>
+    <div class="ap-add">
+      <div class="ap-row">
+        <input id="apEmail" placeholder="Email used to request a new key">
+        <button class="sm" id="apReq">Request</button>
+      </div>
+      <div class="ap-row">
+        <input id="apKey" placeholder="Paste an existing key here">
+        <input id="apLabel" placeholder="Note" style="max-width:96px">
+        <button class="sm" id="apSave">Add</button>
+      </div>
+    </div>
+    <div class="ap-note">
+      <a href="#" id="apRefresh">Refresh quota</a> · 
+      <a href="#" id="apSignup">Request from the official page</a><br>
+      Once the quota is used up you have to wait for the UTC midnight reset, or simply switch to another account.
+    </div>`;
+  bindPop();
+}
+
+function bindPop(){
+  const pop = $('#acctPop');
+  pop.querySelectorAll('.ap-item').forEach(it => {
+    it.onclick = async () => {
+      const i = +it.dataset.idx;
+      if((ACCTS[i] || {}).active) return;
+      it.style.opacity = .45;
+      const d = await jpost('/api/account/switch', {index: i});
+      if(d.error){ it.style.opacity = 1; alert(d.error); return; }
+      QUOTA = d;
+      if(d.accounts) ACCTS = d.accounts;
+      refreshChip(); renderPop();
+      log(['Switched to account: ' + ((ACCTS.find(a => a.active) || {}).label || '')]);
+    };
+  });
+
+  const req = $('#apReq');
+  if(req) req.onclick = async () => {
+    const email = ($('#apEmail').value || '').trim();
+    if(!email){ $('#apEmail').focus(); return; }
+    req.disabled = true; req.textContent = 'Requesting…';
+    try{
+      const d = await jpost('/api/account/request', {email});
+      if(d.error){ alert(d.error); return; }
+      $('#apKey').value = d.api_key || '';
+      $('#apLabel').value = email;
+      log(['Requested a new key for  ' + email + '  (…' + (d.api_key || '').slice(-4) + ')',
+           'Now open your inbox and click "Activate your OpenAlex API key", then come back and click "Add" ']);
+      alert('Key generated and filled into the field below:\n\n' + d.api_key
+        + '\n\nBut it must be activated first: go to  ' + email + '  and open the message titled '
+        + '\n"Activate your OpenAlex API key", then click the button inside.'
+        + '\nAfter activation, come back and click "Add".');
+    }catch(e){ alert(String(e)); }
+    finally{ req.disabled = false; req.textContent = 'Request'; }
+  };
+
+  const save = $('#apSave');
+  if(save) save.onclick = async () => {
+    const key = ($('#apKey').value || '').trim();
+    if(!key){ $('#apKey').focus(); return; }
+    save.disabled = true; save.textContent = 'Validating…';
+    try{
+      const d = await jpost('/api/account/add', {
+        api_key: key,
+        email: ($('#apEmail').value || '').trim(),
+        label: ($('#apLabel').value || '').trim()
+      });
+      if(d.error){ alert(d.error); return; }
+      QUOTA = d;
+      if(d.accounts) ACCTS = d.accounts;
+      refreshChip(); renderPop();
+      log(['Account added and activated' + (QUOTA.error ? ' ⚠ ' + QUOTA.error : '')]);
+    }finally{ save.disabled = false; save.textContent = 'Add'; }
+  };
+
+  const rf = $('#apRefresh');
+  if(rf) rf.onclick = ev => { ev.preventDefault(); loadQuota(true); };
+  const su = $('#apSignup');
+  if(su) su.onclick = ev => {
+    ev.preventDefault();
+    const ok = QUOTA && QUOTA.signup ? QUOTA.signup : 'https://openalex.org/settings/api';
+    openUrl(ok);
+  };
+}
+
+// ---------------- Storage format ----------------
+function refreshStgChip(){
+  const el = $('#stgChip');
+  if(!el) return;
+  const f = (STG.formats || {})[STG.save_format] || {};
+  el.textContent = f.label || STG.save_format || 'Storage';
+  el.title = (f.cost || '') + ' · Click to change the storage format';
+}
+
+function renderStgPop(){
+  const pop = $('#stgPop');
+  if(!pop) return;
+  const fmts = STG.formats || {};
+  const keys = Object.keys(fmts);
+  pop.innerHTML = `
+    <div class="ap-title">Which format to save full text in (this is where the space goes)</div>
+    ${keys.map(k => `
+      <label class="fmt-item ${STG.save_format === k ? 'on' : ''}" data-fmt="${k}">
+        <input type="radio" name="fmt" ${STG.save_format === k ? 'checked' : ''}>
+        <div>
+          <div class="fn">${esc(fmts[k].label || k)}</div>
+          <div class="fd">${esc(fmts[k].desc || '')}</div>
+          <div class="fc">${esc(fmts[k].cost || '')}</div>
+        </div>
+      </label>`).join('')}
+    <label class="fmt-sw">
+      <input type="checkbox" id="stgPrev" ${STG.keep_preview_pdf ? 'checked' : ''}>
+      When only the first page is available, also save a first-page image (~245 KB extra per paper)
+    </label>
+    <div class="ap-note">
+      PDF chosen but no complete version → falls back to XML; XML chosen but the journal has no XML (MDPI / BMC) → falls back to PDF.
+    </div>`;
+  pop.querySelectorAll('.fmt-item').forEach(it => {
+    it.onclick = () => setStg({save_format: it.dataset.fmt});
+  });
+  const pv = $('#stgPrev');
+  if(pv) pv.onchange = ev => setStg({keep_preview_pdf: ev.target.checked});
+}
+
+async function setStg(patch){
+  let d;
+  try{ d = await jpost('/api/storage', patch); }
+  catch(e){ alert(String(e)); return; }
+  if(d.error){ alert(d.error); return; }
+  STG.save_format = d.save_format;
+  STG.keep_preview_pdf = !!d.keep_preview_pdf;
+  if(d.formats) STG.formats = d.formats;
+  refreshStgChip();
+  const pop = $('#stgPop');
+  if(pop && !pop.hidden) renderStgPop();
+}
+
+function renderVerPop(){
+  const pop = $('#verPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="about-hd">Miaomiao Paper Tool<span>v1.4.2</span></div>
+    <div class="about-meta">
+      Authors: Ni, Yishu &amp; Da Feiyu (WorkBuddy · DeepSeek)<br>
+      © 2026 Ni, Yishu<br>
+      Acknowledgements: Sun, Wenbin, for testing and debugging the software
+    </div>
+    <div class="about-law">
+      <b>For learning and academic exchange only. Commercial use is prohibited.</b><br>
+      All full texts are obtained through public publisher APIs or open access channels.
+      No access control is bypassed and no page requiring subscription authentication is scraped.
+    </div>
+    <div class="ap-note" style="margin-top:9px">
+      Search data comes from OpenAlex; full texts come from Unpaywall / arXiv / PMC OA /
+      publisher APIs (Elsevier Article Retrieval).<br>
+      IF / CAS quartiles come from easyScholar (your own free key required).
+    </div>`;
+}
+
+function togglePop(which){
+  const MAP = { acct: '#acctPop', stg: '#stgPop', jm: '#jmPop', ver: '#verPop' };
+  const cur = $(MAP[which]);
+  if(!cur) return;
+  const wasHidden = cur.hidden;
+  Object.values(MAP).forEach(sel => {
+    const el = $(sel);
+    if(el) el.hidden = true;
+  });
+  if(!wasHidden) return;
+  if(which === 'acct') renderPop();
+  else if(which === 'stg') renderStgPop();
+  else if(which === 'jm') renderJmPop();
+  else renderVerPop();
+  cur.hidden = false;
+}
+
+async function loadConfig(){
+  const c = await jget('/api/config');
+  ACCTS = c.accounts || [];
+  STG = {
+    save_format: c.save_format || 'xmlgz',
+    keep_preview_pdf: !!c.keep_preview_pdf,
+    formats: c.formats || {}
+  };
+  JM = {
+    ok: !!c.easyscholar,
+    tail: c.easyscholar_tail || '',
+    zh: c.zh_title !== false
+  };
+  const b = $('#badges');
+  b.innerHTML = `
+    <div class="acctwrap">
+      <span class="bd on acct" id="acctChip"><span class="dot warn"></span>Reading quota…</span>
+      <div class="acctpop" id="acctPop" hidden></div>
+    </div>
+    <div class="acctwrap">
+      <span class="bd acct" id="stgChip">Storage…</span>
+      <div class="acctpop" id="stgPop" hidden></div>
+    </div>
+    <div class="acctwrap">
+      <span class="bd acct" id="jmChip"><span class="dot bad"></span>Journal metrics</span>
+      <div class="acctpop" id="jmPop" hidden style="min-width:352px"></div>
+    </div>
+    <span class="bd ${c.email ? 'on' : 'off'}">${c.email ? '✓' : '✗'} email</span>
+    <span class="bd ${c.elsevier_api_key ? 'on' : 'off'}">${c.elsevier_api_key ? '✓' : '✗'} Elsevier key</span>
+    <span class="bd ${c.elsevier_insttoken ? 'on' : 'off'}">${c.elsevier_insttoken ? '✓' : '✗'} insttoken</span>
+    <span class="bd">Rate limit ${c.rps} req/s</span>
+    <div class="acctwrap">
+      <span class="bd ver" id="verChip">v1.4.2</span>
+      <div class="acctpop" id="verPop" hidden style="left:auto;right:0;min-width:300px"></div>
+    </div>`;
+
+  $('#acctChip').onclick = ev => { ev.stopPropagation(); togglePop('acct'); };
+  $('#stgChip').onclick = ev => { ev.stopPropagation(); togglePop('stg'); };
+  $('#jmChip').onclick = ev => { ev.stopPropagation(); togglePop('jm'); };
+  $('#verChip').onclick = ev => { ev.stopPropagation(); togglePop('ver'); };
+  refreshStgChip();
+  refreshJmChip();
+  document.addEventListener('click', ev => {
+    if(ev.target.closest('.acctwrap')) return;
+    ['#acctPop', '#stgPop', '#jmPop', '#verPop'].forEach(sel => {
+      const el = $(sel);
+      if(el && !el.hidden) el.hidden = true;
+    });
+  });
+
+  $('#hint').innerHTML = `Select items, then start downloading. Files go to <code>${c.out_dir}</code>`;
+  if(!c.email) log(['⚠ No email configured: Unpaywall will reject the requests and OA full-text links cannot be resolved.\nEdit "email" in config.json and restart the app.']);
+  loadQuota(false);
+}
+
+// ===================== Translated title + journal metrics (IF / CAS quartile) =====================
+let JM = { ok: false, tail: '', zh: true };
+const ZH_MAP = {};      // English title -> Chinese
+const JM_MAP = {};      // Journal name -> {if, jcr, cas, top}
+const JM_DONE = new Set();   // Journals already looked up (recorded even on a miss, to avoid repeated requests)
+
+function refreshJmChip(){
+  const el = $('#jmChip');
+  if(!el) return;
+  el.innerHTML = `<span class="dot ${JM.ok ? 'ok' : 'bad'}"></span> ${JM.ok ? 'IF · quartile' : 'Journal metrics'}`;
+  el.title = JM.ok ? `easyScholar configured (…${JM.tail})` : 'No easyScholar key configured — click here to set it up';
+}
+
+function renderJmPop(){
+  const pop = $('#jmPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="ap-title">Impact factor · CAS quartile · JCR quartile</div>
+    <div class="ap-add">
+      <div class="ap-row">
+        <input type="password" class="jmkey" id="jmKey"
+               placeholder="${JM.ok ? 'Configured (…' + JM.tail + '), re-enter to replace' : 'Paste your easyScholar SecretKey'}">
+        <button id="jmSave" style="padding:6px 12px">Save</button>
+      </div>
+      <div class="ap-note" id="jmMsg" style="border:0;margin:0;padding:0"></div>
+    </div>
+    <div class="ap-note">
+      The key is free: <a href="#" id="jmLink">easyscholar.cc</a> → sign in → username at the top right → open API → copy the SecretKey.<br>
+      Without it you can still search and download; the IF / quartile columns simply show "—".
+    </div>`;
+  $('#jmSave').onclick = saveJm;
+  $('#jmLink').onclick = ev => { ev.preventDefault(); openUrl('https://www.easyscholar.cc/'); };
+  $('#jmKey').addEventListener('keydown', ev => { if(ev.key === 'Enter') saveJm(); });
+}
+
+async function saveJm(){
+  const key = ($('#jmKey').value || '').trim();
+  const msg = $('#jmMsg');
+  if(!key){ if(msg) msg.innerHTML = '<span class="ap-warn">Paste the key first</span>'; return; }
+  const btn = $('#jmSave');
+  btn.disabled = true; btn.textContent = 'Validating…';
+  if(msg) msg.textContent = '';
+  let d;
+  try{ d = await jpost('/api/easyscholar', {key}); }
+  catch(e){ d = {error: String(e)}; }
+  btn.disabled = false; btn.textContent = 'Save';
+  if(d.error){
+    if(msg) msg.innerHTML = '<span class="ap-warn">' + esc(d.error) + '</span>';
+    return;
+  }
+  JM.ok = true;
+  JM.tail = key.slice(-4);
+  refreshJmChip();
+  const p = (d.test && d.test.parsed) || {};
+  let line = `✓ Saved. Test lookup ${esc((d.test && d.test.sample) || '')}: `
+           + `IF ${esc(p['if'] || '—')} · ${esc(p.cas_raw || 'no quartile')}`;
+  if(!p['if'] && !p.cas && d.test && d.test.fields && d.test.fields.length){
+    line += `<br><span style="color:#a5651a">The API returned these field names: ${esc(d.test.fields.slice(0, 10).join(', '))}`
+          + `, which do not match IF / quartile — send this over so I can take a look</span>`;
+  }
+  if(msg) msg.innerHTML = line;
+  const inp = $('#jmKey');
+  if(inp) inp.placeholder = `Configured (…${JM.tail}), re-enter to replace`;
+  log(['easyScholar key saved: IF / CAS quartile / JCR quartile are now available']);
+  if(rows.length) rankStart('#tblBox', rows);
+}
+
+// ---- Document type pill ----
+// Reviews are highlighted; other non-article types (dissertation / preprint...) get a gray pill;
+// research articles whose title looks like a review get a light hint -- OpenAlex labels many reviews as articles,
+// so this only warns and never filters, to avoid killing genuine research articles.
+function typePill(r){
+  const t = (r.work_type || '').toLowerCase();
+  if(t === 'review') return '<span class="pill rev" title="OpenAlex labels this as a review">Review</span>';
+  if(t && t !== 'article')
+    return `<span class="pill mild" title="Document type as labelled by OpenAlex: ${esc(t)}">${esc(r.type_label || t)}</span>`;
+  if(r.maybe_review)
+    return '<span class="pill mild" title="The title contains review / survey / overview, but OpenAlex labels it a research article — verify before citing">Possible review</span>';
+  return '';
+}
+
+// Pill for "linked by several seeds at once" in citation expansion -- the higher the number, the more likely it is the paper you want
+function seedPill(r){
+  const n = r.seed_hits || 0;
+  if(n < 2) return '';
+  const tip = `This paper shows up in the citations of ${n} seeds — usually more relevant than one linked in just a single place`;
+  return `<span class="pill seed" title="${tip}">Co-seed ${n}</span>`;
+}
+
+// PubMed MeSH terms: see at a glance whether a paper is on topic, without expanding the abstract
+function meshRow(r){
+  const m = (r.mesh || []).slice(0, 6);
+  if(!m.length) return '';
+  return `<div class="mesh" title="PubMed MeSH terms">`
+       + m.map(x => `<span>${esc(x)}</span>`).join('') + `</div>`;
+}
+
+// Plain-text document type used for export -- **only write the certain one**.
+// "Possible review" is guessed from the title; writing it into Excel would break filtering/sorting on that column, so it stays in the UI only.
+function typeText(r){
+  const t = (r.work_type || '').toLowerCase();
+  if(!t) return '';
+  return r.type_label || t;
+}
+
+// ---- Translated title ----
+function zhCell(r){
+  const zh = ZH_MAP[r.title];
+  if(zh) return `<div class="zh on">${esc(zh)}</div>`;
+  return `<div class="zh" data-i="${r.i}"></div>`;
+}
+
+function zhRepaint(root, list){
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  list.forEach(r => {
+    const zh = ZH_MAP[r.title];
+    if(!zh) return;
+    const cell = box.querySelector('.zh[data-i="' + r.i + '"]');
+    if(cell){ cell.textContent = zh; cell.classList.add('on'); }
+  });
+}
+
+// ---- Abstract / DOI link (shared by the main view and "Open all") ----
+function doiLink(r){
+  if(!r.doi) return ' · <span class="dim">No DOI</span>';
+  return ` · <a href="#" class="doilink" data-doi="${esc(r.doi)}" title="Open doi.org in your browser">${esc(r.doi)} ↗</a>`;
+}
+
+function absBox(r){
+  if(!r.abstract) return '';
+  return `<details class="absbox" data-i="${r.i}" data-doi="${esc(r.doi||'')}">`
+       + `<summary>Abstract</summary>`
+       + `<div class="absen">${esc(r.abstract)}</div>`
+       + `<div class="abszh" hidden></div></details>`;
+}
+
+const ABS_ZH = {};
+
+function showAbsZh(d, text){
+  const out = d.querySelector('.abszh');
+  const bar = d.querySelector('.absbar');
+  if(!out) return;
+  out.textContent = text; out.hidden = false; out.dataset.done = '1';
+  if(bar) bar.hidden = true;          // Done translating -- hide the button
+}
+
+// Only called when the button is clicked -- no click, no request
+async function loadAbsZh(d){
+  const out = d.querySelector('.abszh');
+  const btn = d.querySelector('.abstr');
+  if(!out || out.dataset.done) return;
+  const key = d.dataset.doi || ('i' + d.dataset.i);
+  if(ABS_ZH[key]){ showAbsZh(d, ABS_ZH[key]); return; }
+  const enEl = d.querySelector('.absen');
+  const en = enEl ? enEl.textContent : '';
+  if(!en.trim()) return;
+  if(btn){ btn.disabled = true; btn.textContent = 'Translating…'; }
+  out.hidden = false; out.textContent = 'Translating… (a few seconds the first time; cached afterwards)';
+  let r;
+  try{ r = await jpost('/api/zh_abs', {text: en}); }
+  catch(e){
+    out.textContent = '(Translation failed: ' + e + ')';
+    if(btn){ btn.disabled = false; btn.textContent = 'Retry'; }
+    return;
+  }
+  if(r.zh){
+    ABS_ZH[key] = r.zh;
+    showAbsZh(d, r.zh + (r.note ? '\n\n(' + r.note + ')' : ''));
+  } else {
+    out.textContent = '(No translation: ' + (r.note || 'unknown reason') + ')';
+    if(btn){ btn.disabled = false; btn.textContent = 'Retry'; }
+  }
+}
+
+function bindAbsLinks(sel){
+  const box = $(sel);
+  if(!box) return;
+  box.querySelectorAll('a.doilink').forEach(a => {
+    a.onclick = ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      openUrl('https://doi.org/' + a.dataset.doi);
+    };
+  });
+  box.querySelectorAll('details.absbox').forEach(d => {
+    if(d.dataset.bound) return;
+    d.dataset.bound = '1';
+    d.addEventListener('toggle', () => {
+      if(!d.open) return;
+      const key = d.dataset.doi || ('i' + d.dataset.i);
+      if(ABS_ZH[key]) showAbsZh(d, ABS_ZH[key]);   // Only shows what was translated before; sends no request
+    });
+    const btn = d.querySelector('.abstr');
+    if(btn) btn.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); loadAbsZh(d); };
+  });
+}
+
+async function zhStart(root, list, gen){
+  if(!JM.zh) return;
+  const my = (gen === undefined) ? RENDER_SEQ : gen;
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  const titles = [...new Set(list.map(r => r.title).filter(t => t && !ZH_MAP[t]))];
+  if(!titles.length) return;
+  for(let i = 0; i < titles.length; i += 12){
+    if(my !== RENDER_SEQ) return;        // The result set has changed; drop this response
+    let d;
+    try{ d = await jpost('/api/zh', {titles: titles.slice(i, i + 12)}); }
+    catch(e){ return; }
+    if(my !== RENDER_SEQ) return;
+    const m = d.map || {};
+    let hit = 0;
+    list.forEach(r => {
+      const zh = m[r.title];
+      if(!zh) return;
+      ZH_MAP[r.title] = zh;
+      const cell = box.querySelector('.zh[data-i="' + r.i + '"]');
+      if(cell){ cell.textContent = zh; cell.classList.add('on'); }
+      hit++;
+    });
+    if(d.note) log(['Translation: ' + d.note]);
+    if(!hit && d.note) return;
+  }
+}
+
+// ---- IF / quartile ----
+function ifCell(r){
+  if(!JM.ok) return '<span class="dim" title="No easyScholar key configured">—</span>';
+  if(!r.journal) return '<span class="dim">—</span>';
+  const info = JM_MAP[r.journal];
+  if(info) return info['if'] ? esc(info['if']) : '<span class="dim" title="easyScholar does not index the IF of this journal">—</span>';
+  return JM_DONE.has(r.journal) ? '<span class="dim" title="easyScholar does not index the IF of this journal">—</span>' : '<span class="dim">·</span>';
+}
+
+function casCell(r){
+  if(!JM.ok) return '<span class="dim" title="No easyScholar key configured">—</span>';
+  if(!r.journal) return '<span class="dim">—</span>';
+  const info = JM_MAP[r.journal];
+  if(!info) return JM_DONE.has(r.journal) ? '<span class="dim">—</span>' : '<span class="dim">·</span>';
+  if(!info.cas) return '<span class="dim">—</span>';
+  const z = info.cas.replace('区', ''); const q = /^[1-4]$/.test(z) ? 'Q' + z : info.cas;
+  return `<span class="cas z${z}${info.top ? ' top' : ''}" title="${esc(info.cas_raw || '')}">`
+       + `${esc(q)}${info.top ? ' Top' : ''}</span>`;
+}
+
+function applyRank(box, i, info){
+  const a = box.querySelector('#if-' + i), b = box.querySelector('#cas-' + i);
+  if(a) a.innerHTML = (info && info['if']) ? esc(info['if']) : '<span class="dim">—</span>';
+  if(b){
+    if(info && info.cas){
+      const z = info.cas.replace('区', ''); const q = /^[1-4]$/.test(z) ? 'Q' + z : info.cas;
+      b.innerHTML = `<span class="cas z${z}${info.top ? ' top' : ''}" title="${esc(info.cas_raw || '')}">`
+                  + `${esc(q)}${info.top ? ' Top' : ''}</span>`;
+    } else {
+      b.innerHTML = '<span class="dim">—</span>';
+    }
+  }
+}
+
+async function rankStart(root, list, gen){
+  if(!JM.ok) return;
+  const my = (gen === undefined) ? RENDER_SEQ : gen;
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  const names = [...new Set(list.map(r => r.journal).filter(n => n && !JM_DONE.has(n)))];
+  if(!names.length) return;
+  for(let i = 0; i < names.length; i += 8){
+    if(my !== RENDER_SEQ) return;        // Same as above: once the result set changed, stop writing into the new table
+    const chunk = names.slice(i, i + 8);
+    let d;
+    try{ d = await jpost('/api/rank', {names: chunk}); }
+    catch(e){ return; }
+    const m = d.map || {};
+    chunk.forEach(n => {
+      if(m[n]){ JM_MAP[n] = m[n]; JM_DONE.add(n); }
+      else if(!d.note){ JM_DONE.add(n); }     // Genuinely not found (not rate limited)
+    });
+    list.forEach(r => {
+      if(chunk.includes(r.journal)) applyRank(box, r.i, JM_MAP[r.journal] || null);
+    });
+    if(d.note){
+      // Rate limited / key invalid: stop leaving "." behind and settle everything on "--"
+      log(['Journal metrics: ' + d.note]);
+      chunk.forEach(n => { if(!JM_MAP[n]) JM_DONE.add(n); });
+      list.forEach(r => {
+        if(chunk.includes(r.journal)) applyRank(box, r.i, JM_MAP[r.journal] || null);
+      });
+      return;
+    }
+  }
+}
+
+function render(list){
+  rows = list; sel.clear();
+  RENDER_SEQ++;
+  const exp = $('#exPop'); if(exp) exp.hidden = true;   // New result set -- close the old export popover
+  if(!list.length){
+    $('#tblBox').innerHTML = '<div class="empty">No results</div>';
+    upd();                                            // Without this the button keeps saying "Download selected (3)" from the previous run
+    return;
+  }
+  const h = `<table><thead><tr>
+      <th style="width:34px"><input type="checkbox" id="all"></th>
+      <th>Title / journal</th><th style="width:62px">Year</th>
+      <th style="width:52px">IF</th><th style="width:76px">CAS quartile</th>
+      <th style="width:56px">Cited</th><th style="width:56px">OA</th>
+    </tr></thead><tbody>` +
+    list.map(r => `<tr data-i="${r.i}">
+      <td><input type="checkbox" data-i="${r.i}"></td>
+      <td><div class="t">${esc(r.title)}</div><div class="j">${typePill(r)}${seedPill(r)}${esc(r.journal||'—')}${doiLink(r)}</div>${absBox(r)}${meshRow(r)}</td>
+      <td>${r.year||''}</td>
+      <td class="ifv" id="if-${r.i}">${ifCell(r)}</td>
+      <td id="cas-${r.i}">${casCell(r)}</td>
+      <td class="num-r">${r.cited_by||0}</td>
+      <td>${r.is_oa?'<span class="pill oa">OA</span>':'<span class="pill sub">Subscription</span>'}</td>
+    </tr>`).join('') + '</tbody></table>';
+  $('#tblBox').innerHTML = h;
+
+  $('#all').onchange = e => {
+    // Only look for checkboxes inside the result table: the library and library-search tables also have a tbody, and picking those would blow up
+    document.querySelectorAll('#tblBox tbody input[type=checkbox]').forEach(c => {
+      c.checked = e.target.checked;
+      const i = +c.dataset.i;
+      e.target.checked ? sel.add(i) : sel.delete(i);
+      c.closest('tr').classList.toggle('sel', e.target.checked);
+    });
+    upd();
+  };
+  document.querySelectorAll('#tblBox tbody tr').forEach(tr => {
+    const c = tr.querySelector('input[type=checkbox]');
+    if(!c) return;                       // Rows without a checkbox (should not happen) are skipped instead of raising
+    tr.onclick = ev => {
+      if(ev.target.closest('input, a, details, summary')) return;
+      c.checked = !c.checked;
+      c.dispatchEvent(new Event('change'));
+    };
+    c.onchange = () => {
+      const i = +c.dataset.i;
+      c.checked ? sel.add(i) : sel.delete(i);
+      tr.classList.toggle('sel', c.checked);
+      upd();
+    };
+  });
+  upd();
+  bindAbsLinks('#tblBox');
+  rankStart('#tblBox', rows, RENDER_SEQ);
+}
+
+// Bumped on every render; async responses (translation / IF) that see a changed token are dropped,
+// otherwise the previous round translations get written into the new table by row index -- wrong rows, and impossible to notice
+let RENDER_SEQ = 0;
+
+function upd(){
+  $('#btnFetch').disabled = sel.size === 0;
+  $('#btnFetch').textContent = sel.size ? `Download selected (${sel.size})` : 'Download selected';
+  const be = $('#btnExport');
+  if(be){
+    be.disabled = !rows.length;
+    be.textContent = rows.length ? `Export table (${rows.length})` : 'Export table';
+  }
+  const bc = $('#btnCites');
+  if(bc){
+    bc.disabled = sel.size === 0;
+    bc.textContent = sel.size ? `Citation expansion (${sel.size})` : 'Citation expansion';
+  }
+}
+
+// ===================== Citation expansion (follow the citation trail) =====================
+let CITEDIR = 'both';
+const MAX_SEEDS = 6;
+
+function renderCitePop(){
+  const pop = $('#citePop');
+  if(!pop) return;
+  const picked = rows.filter(r => sel.has(r.i));
+  const noDoi = picked.filter(r => !r.doi).length;
+  const over = picked.length > MAX_SEEDS;
+  pop.innerHTML = `
+    <div class="ap-title">Citation expansion · use the selected papers as seeds</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.75">
+      <b>${picked.length}</b> selected${noDoi ? ` (${noDoi} of them have no DOI and will be skipped)` : ''}
+      ${over ? `<br><span style="color:var(--warn)">At most the first ${MAX_SEEDS} items are used as seeds</span>` : ''}<br>
+      Uses Semantic Scholar citation data — <b>no more keywords needed</b>.
+    </div>
+    <div class="exrow">
+      <span class="exchip ${CITEDIR==='both'?'on':''}" data-dir="both">Both</span>
+      <span class="exchip ${CITEDIR==='citations'?'on':''}" data-dir="citations">Cited by</span>
+      <span class="exchip ${CITEDIR==='references'?'on':''}" data-dir="references">References</span>
+    </div>
+    <div class="exmsg" style="line-height:1.7">
+      · <b>Cited by</b>: follow-up work — the easiest way to find new experimental papers (best coverage)<br>
+      · <b>References</b>: the groundwork others built on — starting from a review opens up the whole field<br>
+      <span style="color:var(--ink3)"> Note that only some publishers provide this direction: fully OA publishers such as MDPI usually do,
+      while Elsevier / Wiley are often empty (they do not expose reference lists), so missing data is normal</span><br>
+      · Items linked by several seeds at once are tagged "Co-seed N" — look at those first
+    </div>
+    <div class="exbar"><button id="citeGo">Start</button>
+      <button class="sm" id="citeCancel" style="background:#fff">Cancel</button></div>`;
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => { if(c.dataset.dir){ CITEDIR = c.dataset.dir; renderCitePop(); } };
+  });
+  const go = $('#citeGo'), cc = $('#citeCancel');
+  if(go) go.onclick = doCites;
+  if(cc) cc.onclick = () => { pop.hidden = true; };
+}
+
+let CITEBUSY = false;
+
+async function doCites(){
+  const pop = $('#citePop'), go = $('#citeGo');
+  const idx = [...sel];
+  if(!idx.length || CITEBUSY) return;
+  CITEBUSY = true;
+  if(go){ go.disabled = true; go.textContent = 'Expanding…'; }
+  // Close the popover immediately: otherwise clicking a direction chip while waiting redraws the whole popover,
+  // the "Start" button becomes clickable again -> a second request can fire concurrently and the "Back" target gets clobbered
+  if(pop) pop.hidden = true;
+  log(['Citation expansion: querying Semantic Scholar (10–20 s, do not close the window)…']);
+  try{
+    const out = await jpost('/api/cites', {indices: idx, direction: CITEDIR, limit: 200});
+    if(out.error){
+      alert(out.error);
+      log(['✗ Citation expansion failed: ' + String(out.error).split('\n')[0]]);
+      renderCitePop();                 // Reopen it so the user can retry with another direction
+      const pp = $('#citePop'); if(pp) pp.hidden = false;
+      return;
+    }
+    render(out.results);
+    const b = $('#btnBack'); if(b) b.hidden = false;
+    const st = out.stats || {};
+    const dirTxt = {both:'Both directions', citations:'Cited by', references:'References'}[CITEDIR] || '';
+    log([`Citation expansion (${dirTxt}): ${st.seeds || 0} seeds → ${out.n} records after de-duplication`
+         + (st.citations ? ` · Forward ${st.citations}` : '')
+         + (st.references ? ` · Backward ${st.references}` : '')
+         + (st.dup ? ` · Merged duplicates ${st.dup}` : ''),
+         (st.ref_empty_seeds && st.ref_empty_seeds >= (st.seeds || 1) && CITEDIR !== 'citations'
+           ? '⚠ Semantic Scholar has no reference data for these seeds (common for Elsevier / Wiley), '
+             + 'OA papers such as MDPI usually work as seeds'
+           : ''),
+         'Items tagged "Co-seed N" are linked by several seeds at once and are usually more relevant; they can still be downloaded and exported once selected']
+         .filter(Boolean));
+  }catch(e){
+    alert('Expansion failed: ' + e);
+    renderCitePop();
+    const pp = $('#citePop'); if(pp) pp.hidden = false;
+  }finally{
+    CITEBUSY = false;
+  }
+}
+
+$('#btnCites').onclick = () => {
+  const pop = $('#citePop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(!sel.size){ alert('Select a few items as seeds first (only those with a DOI work)'); return; }
+  renderCitePop();
+  pop.hidden = false;
+};
+
+$('#btnBack').onclick = async () => {
+  const out = await jpost('/api/back', {});
+  if(out.error){ alert(out.error); return; }
+  render(out.results);
+  const b = $('#btnBack'); if(b) b.hidden = true;
+  log(['Back to the keyword search results']);
+};
+
+// ===================== Export table (translated title + IF + quartile) =====================
+let EX = { scope: 'all', fmt: 'xlsx', busy: false, last: '' };
+
+function exList(){
+  return EX.scope === 'sel' ? rows.filter(r => sel.has(r.i)) : rows;
+}
+
+function exPayload(list){
+  return list.map(r => {
+    const m = JM_MAP[r.journal] || {};
+    return {
+      zh_title: ZH_MAP[r.title] || '',
+      title: r.title || '',
+      journal: r.journal || '',
+      dtype: typeText(r),
+      'if': m['if'] || '',
+      cas: (() => { const z = (m.cas || '').replace('区', '');
+        return z ? (/^[1-4]$/.test(z) ? 'Q' + z : m.cas) + (m.top ? ' Top' : '') : ''; })(),
+      jcr: m.jcr || '',
+      year: r.year || '',
+      cited_by: r.cited_by || 0,
+      oa: r.is_oa ? 'OA' : 'Subscription',
+      doi: r.doi || '',
+      first_author: r.first_author || '',
+      abstract: r.abstract || ''
+    };
+  });
+}
+
+function renderExPop(){
+  const pop = $('#exPop');
+  if(!pop) return;
+  if(!rows.length){ pop.hidden = true; return; }
+  const nAll = rows.length, nSel = sel.size, list = exList();
+  const nJm = [...new Set(list.map(r => r.journal).filter(n => n && !JM_DONE.has(n)))].length;
+  const miss = [];
+  if(!JM.ok) miss.push('easyScholar is not configured, so the IF / quartile columns will be empty');
+  else if(nJm) miss.push(`${nJm} journal names not looked up yet`);
+  const willFetch = (JM.ok && nJm);
+  pop.innerHTML = `
+    <div class="ap-title">Export table · with IF / CAS quartile</div>
+    <div class="exrow">
+      <span class="exchip ${EX.scope === 'all' ? 'on' : ''}" data-scope="all">All ${nAll} records</span>
+      <span class="exchip ${EX.scope === 'sel' ? 'on' : ''} ${nSel ? '' : 'off'}" data-scope="sel">${nSel} selected</span>
+    </div>
+    <div class="exrow">
+      <span class="exchip ${EX.fmt === 'xlsx' ? 'on' : ''}" data-fmt="xlsx">Excel (.xlsx)</span>
+      <span class="exchip ${EX.fmt === 'csv' ? 'on' : ''}" data-fmt="csv">CSV (.csv)</span>
+    </div>
+    <div class="exmsg">${miss.length
+      ? (willFetch ? 'Will be filled in before export: ' + miss.join(', ') + ' (takes a few tens of seconds the first time, then cached locally).'
+                   : 'Note: ' + miss.join('; ') + '.')
+      : 'Journal metrics are cached locally — instant.'}<br>
+      The file is written to <code>export\\</code> in the program folder; DOIs in the Excel file are clickable.</div>
+    <div class="exbar">
+      <button id="exGo"${EX.busy ? ' disabled' : ''}>${EX.busy ? 'Exporting…' : `Start export (${list.length} records)`}</button>
+      <button class="sm" id="exCancel" style="background:#fff">Cancel</button>
+    </div>`;
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => {
+      if(c.classList.contains('off')) return;
+      if(c.dataset.scope) EX.scope = c.dataset.scope;
+      if(c.dataset.fmt) EX.fmt = c.dataset.fmt;
+      renderExPop();
+    };
+  });
+  const cancel = $('#exCancel'), go = $('#exGo');
+  if(cancel) cancel.onclick = () => { pop.hidden = true; };
+  if(go) go.onclick = doExport;
+}
+
+async function ensureEnrich(list){
+  // Fill in what is not translated / not looked up yet; both helpers bring their own disk cache and rate-limit protection
+
+  try{ if(JM.ok) await rankStart('#tblBox', list); }catch(e){}
+}
+
+async function doExport(){
+  if(EX.busy) return;
+  const list = exList();
+  if(!list.length){ alert('Nothing to export'); return; }
+  EX.busy = true; renderExPop();
+  const go = $('#exGo');
+  try{
+    if(go) go.textContent = 'Filling in titles / metrics…';
+    await ensureEnrich(list);
+    if(go) go.textContent = 'Writing file…';
+    const out = await jpost('/api/export', {
+      rows: exPayload(list), fmt: EX.fmt, tag: ($('#q').value || '').trim()
+    });
+    EX.busy = false;
+    if(out.error){ alert(out.error); renderExPop(); return; }
+    EX.last = out.path;
+    $('#exPop').hidden = true;
+    const nm = out.path.split(/[\\/]/).pop();
+    $('#hint').innerHTML = `Exported <b>${out.n}</b> records →  `
+      + `<a href="#" id="exOpen">${esc(nm)}</a> (${out.fmt.toUpperCase()}, click to open the folder)`;
+    const a = $('#exOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: EX.last}); };
+    const lg = $('#logs');
+    if(lg) { lg.textContent = (lg.textContent || '') + '\nExported ' + out.n + ' records → ' + out.path; lg.scrollTop = lg.scrollHeight; }
+  }catch(e){
+    EX.busy = false; renderExPop();
+    alert('Export failed: ' + e);
+  }
+}
+
+$('#btnExport').onclick = () => {
+  const pop = $('#exPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(EX.scope === 'sel' && !sel.size) EX.scope = 'all';
+  if(!rows.length) return;
+  renderExPop();
+  pop.hidden = false;
+};
+
+document.addEventListener('click', ev => {
+  if(ev.target.closest('.expwrap')) return;
+  ['#exPop', '#notesPop', '#citePop', '#orgPop'].forEach(sel => {
+    const p = $(sel);
+    if(p && !p.hidden) p.hidden = true;
+  });
+});
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function toggleHelp(force){
+  const el = $('#syntax');
+  el.hidden = (force === undefined) ? !el.hidden : !force;
+}
+
+$('#btnHelp').onclick = () => toggleHelp();
+
+document.querySelectorAll('.eg').forEach(e => {
+  e.onclick = () => {
+    $('#q').value = e.dataset.q;
+    $('#q').focus();
+    // Fill only, do not run -- leaves time to adjust the criteria and saves a request
+    $('#q').setSelectionRange($('#q').value.length, $('#q').value.length);
+    const tip = $('#q').dataset.tip;
+    if(!tip){
+      $('#q').dataset.tip = '1';
+      log(['Filled into the search box — press Enter or click "Search" when ready']);
+      setTimeout(() => { delete $('#q').dataset.tip; }, 4000);
+    }
+  };
+});
+
+$('#q').addEventListener('keydown', ev => {
+  if(ev.key === 'Enter'){ ev.preventDefault(); $('#btnSearch').click(); }
+});
+
+$('#btnSearch').onclick = async () => {
+  const q = $('#q').value.trim();
+  if(!q){ $('#q').focus(); return; }
+  // The search criteria are the ones captured at click time; never read the controls after an await --
+  // the search takes several seconds, and if the user changes the Type dropdown meanwhile the log would lie
+  const dtSel0 = $('#dtype');
+  const dtWant = dtSel0 ? dtSel0.value : 'article';
+  const dtWantLabel = (dtSel0 && dtSel0.selectedIndex >= 0)
+    ? dtSel0.options[dtSel0.selectedIndex].text : dtWant;
+  $('#btnSearch').disabled = true;
+  $('#btnSearch').textContent = 'Searching…';
+  const bk = $('#btnBack'); if(bk) bk.hidden = true;      // A new search invalidates the old "Back" target
+  $('#tblBox').innerHTML = '<div class="empty">Searching…</div>';
+  try{
+    const out = await jpost('/api/search', {
+      query: q, limit: +$('#lim').value || 100,
+      year_from: $('#y1').value ? +$('#y1').value : null,
+      year_to:   $('#y2').value ? +$('#y2').value : null,
+      oa_only: $('#oa').checked,
+      field: $('#field').value,
+      op: $('#op').value,
+      sort: $('#sort').value,
+      doc_type: dtWant
+    });
+    if(out.error){
+      let tip = '';
+      if (out.query_error)
+        // The two kinds of QueryError must be told apart: a syntax mistake vs this record being filtered out.
+        // Always saying "check your brackets" sends people who changed type/year off in the wrong direction.
+        tip = out.err_kind === 'filtered'
+          ? '<div class="errtip">The query is not malformed — this record was filtered out by the options above. '
+            + 'Adjust "Type / From year / OA only" as suggested and try again.</div>'
+          : '<div class="errtip">Check that the brackets are balanced and that AND / OR / NOT are surrounded by spaces. Click "Syntax" on the right for examples.</div>';
+      else if (out.quota)
+        tip = '<div class="errtip">This is not a mistake on your side — the OpenAlex quota is exhausted. '
+            + 'Request a free key, put it into openalex_api_key in config.json and restart the app.</div>';
+      $('#tblBox').innerHTML = `<div class="errbox" style="margin:16px">${esc(out.error)}${tip}</div>`;
+      log(['✗ Search failed: ' + out.error.split('\n')[0]]);
+      return;
+    }
+    render(out.results);
+
+    const lines = [];
+    if (out.used_query && out.used_query !== out.original)
+      lines.push(`Chinese converted to: ${out.used_query}`);
+    if (out.leftover && out.leftover.length)
+      lines.push(`⚠ Untranslated fragments: ${out.leftover.join(" / ")}`);
+
+    const p = out.parse || {};
+    if (p.identifier) {
+      let line = `Direct lookup: ${p.expr} · no search performed`;
+      if (p.via === 'crossref') line += ' (not indexed by OpenAlex; metadata taken from Crossref)';
+      lines.push(line);
+    } else if (p.expr) {
+      let line = `Parsed: ${p.expr} · field ${p.field_label}`;
+      if (p.phrase) line += ' · matched as an exact phrase (automatic when pasting a title)';
+      if (p.n_groups > 1) line += ` · split into ${p.n_groups} queries and merged`;
+      if (p.has_neg) line += ' · contains exclusions';
+      if (p.has_wild) line += ' · exact field used';
+      lines.push(line);
+    }
+    if (p.sort && p.sort !== 'relevance'){
+      let line = `Sort: ${p.sort_label}`;
+      if (p.field === 'all')
+        line += ' ⚠ Sorting by citations/year ignores topical relevance, and "Any field" matches full text with a lot of noise — '
+             +  'switching to "Title + abstract" gives better focus';
+      lines.push(line);
+    }
+    const dtLabel = dtWantLabel;
+    if (dtLabel && dtWant !== 'article')
+      lines.push(`Document type: ${dtLabel}` + (dtWant === 'review'
+        ? ' ⚠ OpenAlex review labels are incomplete; if few results come back, switch to "Research article + review" ' : ''));
+    const nSus = (out.results || []).filter(r => r.maybe_review).length;
+    if (nSus && dtWant !== 'review')
+      lines.push(`${nSus} of them have review-like titles but are labelled research articles (tagged "Possible review" — verify before citing)`);
+    const pms = out.pubmed || {};
+    const nFix = (out.results || []).filter(r => r.type_from === 'pubmed' && r.work_type === 'review').length;
+    if (nFix)
+      lines.push(`PubMed correction: ${nFix} records are actually reviews (OpenAlex labelled them research articles) and are now tagged "Review" `);
+    if (pms.updated)
+      lines.push(`PubMed enrichment: document type / MeSH terms retrieved for ${pms.updated} records` +
+                 (pms.skipped_no_doi ? ` (${pms.skipped_no_doi} without a DOI, skipped)` : ''));
+    if (pms.skipped_over_limit)
+      lines.push(`(PubMed checked only the first 200 records; the remaining ${pms.skipped_over_limit} were not checked —  `
+               + `checking them all would take over a minute and is not worth it; narrow down the search instead)`);
+    $('#btnOpenAll').disabled = (out.n === 0);
+    const limWant = +$('#lim').value || 100;
+    lines.push(`OpenAlex matched ${(out.total||0).toLocaleString()} records; ${out.n} retrieved this time`);
+    if (out.total > out.n) {
+      if (p.capped_no_key)
+        lines.push('⚠ OpenAlex capped this at 200 records because no key is configured: go to openalex.org/settings/api,  '
+                 + 'request a free key, put it into openalex_api_key in config.json and you can fetch 1000 at once');
+      else if (out.n < limWant)
+        lines.push('(fewer hits than the count you asked for, so this is all of them)');
+      else
+        lines.push(`(raise "Count" at the top left for more, up to 1000; too many makes rendering slow)`);
+    }
+    log(lines);
+  }catch(e){
+    $('#tblBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }finally{
+    $('#btnSearch').disabled = false;
+    $('#btnSearch').textContent = 'Search';
+  }
+};
+
+$('#btnFetch').onclick = async () => {
+  const out = await jpost('/api/fetch', {indices: [...sel]});
+  if(out.error){ alert(out.error); return; }
+  $('#btnFetch').disabled = true;
+  $('#hint').textContent = 'Downloading — please keep the window open.';
+  if(!polling) polling = setInterval(tick, 800);
+};
+
+async function tick(){
+  const p = await jget('/api/progress');
+  log(p.log);
+  const j = p.job;
+  if(!j) return;
+  const pct = j.total ? Math.round(j.done / j.total * 100) : 0;
+  $('#progBar').style.width = pct + '%';
+  $('#pDone').textContent = `${j.done} / ${j.total}`;
+  $('#pOk').textContent = j.ok;
+  $('#pMiss').textContent = j.miss;
+  if(!j.running){
+    clearInterval(polling); polling = null;
+    $('#hint').textContent = 'Done. Anything not retrieved is listed in library/_missing_for_library.csv; you can request those through your library\'s document delivery service.';
+    upd(); $('#btnFetch').disabled = sel.size === 0;
+  }
+}
+
+$('#q').addEventListener('keydown', e => { if(e.key === 'Enter') $('#btnSearch').click(); });
+// ========== Library ==========
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('.pane').forEach(p => { p.hidden = (p.id !== 'pane-' + t.dataset.pane); });
+    if (t.dataset.pane === 'lib') { loadLibrary(false); loadZotero().then(() => { if(LIBROWS.length) renderLib(); }); }
+    if (t.dataset.pane === 'find') loadKStatus();
+  };
+});
+
+let LIBROWS = [];
+
+function libDate(ts){
+  if(!ts) return '—';
+  const d = new Date(ts * 1000);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function libView(){
+  const q = ($('#libQ').value || '').trim().toLowerCase();
+  const mode = $('#libSort').value;
+  const out = LIBROWS.filter(it => !q
+    || (it.name || '').toLowerCase().includes(q)
+    || (it.title || '').toLowerCase().includes(q)
+    || (it.doi || '').toLowerCase().includes(q)
+    || (it.folder || '').toLowerCase().includes(q));
+  if(mode === 'mtime') out.sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
+  else if(mode === 'size') out.sort((a, b) => (b.size_kb || 0) - (a.size_kb || 0));
+  else if(mode === 'doi') out.sort((a, b) => ((a.doi ? 1 : 0) - (b.doi ? 1 : 0))
+    || (a.name || '').localeCompare(b.name || ''));
+  else out.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  return out;
+}
+
+function renderLib(list){
+  if(list === undefined) list = LIBROWS;
+  if(!list.length){
+    $('#libBox').innerHTML = '<div class="empty">The library is still empty<br><span style="font-size:12px">Downloaded files (PDF / XML / zipped XML) are stored here automatically; you can also copy PDFs from Zotero</span></div>';
+    $('#btnLibExport').disabled = true;
+    return;
+  }
+  const view = libView();
+  $('#btnLibExport').disabled = view.length === 0;
+  const total = LIBROWS.length;
+  const head = view.length === total ? `${total} items` : `${view.length} of ${total} shown`;
+  $('#libBox').innerHTML = `<div class="libstat" style="padding:10px 12px 2px">${head}
+      · click a row to reveal the file in Explorer</div>
+    <table><thead><tr>
+      <th>File</th><th style="width:196px">DOI</th>
+      <th style="width:72px">Size</th><th style="width:96px">Modified</th>
+    </tr></thead><tbody>` +
+    view.map(it => `<tr class="librow" data-f="${esc(it.file)}">
+      <td><div class="t">${esc(it.name)}</div><div class="j">${esc(it.folder)}</div></td>
+      <td class="j" style="word-break:break-all">${it.doi ? esc(it.doi) : '—'}${it.doi && ZSET.has((it.doi||'').toLowerCase()) ? ' <span class="pill zot">Zotero</span>' : ''}</td>
+      <td class="num-r">${it.size_kb} KB</td>
+      <td class="num-r">${libDate(it.mtime)}</td>
+    </tr>`).join('') + '</tbody></table>';
+  document.querySelectorAll('#libBox tr.librow').forEach(tr => {
+    tr.onclick = () => jpost('/api/open', {path: tr.dataset.f});
+  });
+}
+
+async function loadLibrary(force){
+  $('#libBox').innerHTML = '<div class="empty">Scanning… (the first PDF parse is slower)</div>';
+  try{
+    const d = await jget('/api/library' + (force ? '?force=1' : ''));
+    if(d.error){ $('#libBox').innerHTML = `<div class="empty err">${esc(d.error)}</div>`; return; }
+    $('#libPath').textContent = d.library;
+    $('#libStat').textContent =
+      `${d.unique} papers · ${d.total_files} files scanned · ${d.duplicates} duplicates · ${d.with_doi} with DOI`
+      + (d.parsed_this_run ? ` · ${d.parsed_this_run} newly parsed` : '');
+    $('#libCnt').textContent = d.unique || '';
+    LIBROWS = d.items || [];
+    renderLib();
+  }catch(e){
+    $('#libBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+
+$('#btnScan').onclick = () => loadLibrary(true);
+
+// ---- Folder picker / path shortening (beginners should not have to type paths) ----
+async function pickFolder(msg){
+  if(window.pywebview && pywebview.api && pywebview.api.pick_folder){
+    try{ const p = await pywebview.api.pick_folder(); if(p) return p; }catch(e){}
+  }
+  return (prompt(msg || 'Paste a folder path') || '').trim();
+}
+
+function shortPath(p){
+  const s = String(p || '');
+  const parts = s.split(/[\\/]/).filter(Boolean);
+  return parts.length > 2 ? '…\\' + parts.slice(-2).join('\\') : s;
+}
+
+// ===================== Organize manually downloaded PDFs =====================
+let ORGDIR = '', ORGBUSY = false;
+
+function renderOrgPop(){
+  const pop = $('#orgPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="ap-title">Organize manually downloaded PDFs</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.75">
+      PDFs you downloaded by hand into the "Downloads" folder — recognised by DOI → renamed to a uniform format → moved into the library.
+      <b>Anything not recognised is left untouched</b> and only listed for you. Use "Preview" first, then confirm.
+    </div>
+    <div class="exrow" style="gap:6px">
+      <input id="orgDir" value="${esc(ORGDIR)}" placeholder="Downloads folder path"
+             style="flex:1;font-size:12px;padding:6px 8px">
+      <button class="sm" id="orgPick" style="background:#fff">Choose</button>
+    </div>
+    <div class="exbar"><button id="orgPreview">Preview (nothing is moved)</button>
+      <button class="sm" id="orgCancel" style="background:#fff">Cancel</button></div>
+    <div id="orgOut" class="exmsg" style="line-height:1.75;border-top:0;padding-top:0"></div>`;
+  const inp = $('#orgDir');
+  if(inp) inp.oninput = () => { ORGDIR = inp.value; };
+  const pick = $('#orgPick');
+  if(pick) pick.onclick = async () => {
+    const p2 = await pickFolder('Choose the folder your browser downloads into');
+    if(!p2) return;
+    ORGDIR = p2;
+    renderOrgPop();
+  };
+  const pv = $('#orgPreview'); if(pv) pv.onclick = () => runOrganize(true);
+  const cc = $('#orgCancel'); if(cc) cc.onclick = () => { pop.hidden = true; };
+}
+
+function renderOrgResult(d, dry){
+  const out = $('#orgOut');
+  if(!out) return;
+  if(d.error){ out.innerHTML = `<span style="color:var(--bad)">${esc(d.error)}</span>`; return; }
+  if(!d.scanned){
+    out.innerHTML = `There is no PDF in this folder (${esc(shortPath(d.dir || ORGDIR))}).`
+      + `<br><span style="color:var(--ink3)">If the files went somewhere else, click "Choose" above to pick another folder.</span>`;
+    return;
+  }
+  const rows = (d.plan || []).map(x =>
+    `<div style="margin:2px 0"><span style="color:var(--ink3)">${esc(x.from)}</span>`
+    + ` → <b>${esc(x.to)}</b> <span style="color:var(--ink3);font-size:11px">${esc(x.act)}</span></div>`).join('');
+  const unknown = (d.unknown_files || []).length
+    ? `<div style="margin-top:6px;color:var(--ink3)">${d.unknown} left untouched because no DOI could be read: `
+      + d.unknown_files.map(x => esc(x)).join(', ') + `</div>` : '';
+  const unmatched = (d.unmatched_files || []).length
+    ? `<div style="margin-top:6px;color:#8a5a1e">${d.unmatched} left untouched because their DOI is not in the manifest: `
+      + d.unmatched_files.map(x => esc(x)).join(', ')
+      + `<br><span style="color:var(--ink3)">Run a "Search" above first so these records enter the manifest; after that they will be recognised.</span></div>`
+    : '';
+  const extra = (d.limited && d.total)
+    ? `<br><span style="color:#8a5a1e">This folder holds ${d.total} PDFs in total; only the ${d.scanned} most recent were examined `
+      + `— clear some out or narrow the range and try again</span>` : '';
+  out.innerHTML = `<b>${d.scanned} PDFs scanned</b>: ${d.matched} recognised`
+    + (dry ? `, ${d.matched - d.skipped} will be moved` : `, ${d.moved} moved`)
+    + (d.skipped ? `, ${d.skipped} already in the library` : '')
+    + (d.failed ? `, <span style="color:var(--bad)">${d.failed} failed</span>` : '')
+    + (!dry ? `<br><span style="color:var(--ok)">Moved into ${esc(shortPath(d.library))}</span>` : '')
+    + extra + `<div style="margin-top:6px">${rows}</div>${unmatched}${unknown}`
+    + (dry && d.matched > d.skipped
+       ? `<div class="exbar" style="margin-top:8px"><button id="orgConfirm">Confirm (move ${d.matched - d.skipped})</button></div>`
+       : '');
+  const cf = $('#orgConfirm');
+  if(cf) cf.onclick = () => runOrganize(false);
+}
+
+async function runOrganize(dry){
+  if(ORGBUSY) return;
+  ORGBUSY = true;
+  const btn = dry ? $('#orgPreview') : $('#orgConfirm');
+  const old = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = dry ? 'Scanning…' : 'Organizing…'; }
+  const out = $('#orgOut'); if(out) out.innerHTML = 'Reading each PDF for its DOI… (takes about ten seconds for a few dozen files)';
+  try{
+    const d = await jpost('/api/organize', {dir: ORGDIR, dry_run: dry, limit: 200});
+    renderOrgResult(d, dry);
+    if(!dry && d.moved){
+      log([`Organize: ${d.moved} PDFs renamed and moved into the library`]);
+      loadLibrary(true);          // Refresh the list
+    }
+  }catch(e){
+    if(out) out.innerHTML = `<span style="color:var(--bad)">Error: ${esc(String(e))}</span>`;
+  }finally{
+    ORGBUSY = false;
+    if(btn && document.body.contains(btn)){ btn.disabled = false; btn.textContent = old; }
+  }
+}
+
+$('#btnOrganize').onclick = async () => {
+  const pop = $('#orgPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(!ORGDIR){
+    try{ const d = await jget('/api/organize/dir'); ORGDIR = d.dir || ''; }catch(e){}
+  }
+  renderOrgPop();
+  pop.hidden = false;
+};
+
+// ===================== Zotero integration =====================
+let ZOT = { ok: false }, ZSET = new Set(), ZOTGROUP = 'journal';
+let ZOTMODE = 'write', ZOTNAME = '', ZOTPLAN = null, ZOTDONE = null;
+
+async function loadZotero(force){
+  try{
+    const d = await jget('/api/zotero' + (force ? '?force=1' : ''));
+    ZOT = d;
+    ZSET = new Set((d.dois || []).map(x => String(x).toLowerCase()));
+  }catch(e){
+    ZOT = { ok: false, why: String(e) };
+    ZSET = new Set();
+  }
+  return ZOT;
+}
+
+function zotList(){ return libView(); }
+
+function zotDefaultName(){
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  const q = ($('#libQ').value || '').trim();
+  return 'Miaomiao Import ' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+    + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + (q ? ' · ' + q.slice(0, 20) : '');
+}
+
+function renderZotPop(){
+  const pop = $('#zotPop');
+  if(!pop) return;
+  const d = ZOT, ok = !!d.ok;
+  const cols = d.collections || [];
+  const names = cols.slice(0, 5).map(c => c.name).filter(Boolean);
+  const list = zotList();
+  const haver = list.filter(it => it.doi && ZSET.has((it.doi || '').toLowerCase())).length;
+  const pending = list.length - haver;
+  if(!ZOTNAME) ZOTNAME = zotDefaultName();
+
+  let body = '';
+  if(ZOTMODE === 'rdf'){
+    body = `
+      <div class="exrow">
+        <span class="exchip ${ZOTGROUP === 'journal' ? 'on' : ''}" data-g="journal">Group by journal</span>
+        <span class="exchip ${ZOTGROUP === 'year' ? 'on' : ''}" data-g="year">Group by year</span>
+        <span class="exchip ${ZOTGROUP === 'single' ? 'on' : ''}" data-g="single">Single collection</span>
+      </div>
+      <div class="exmsg">Generates a <code>.rdf</code> file that you import in Zotero with <b>File → Import</b>. Your database is not touched.</div>
+      <div class="exbar"><button id="zotGo">Generate import file (${pending} records)</button>
+        <button class="sm" id="zotCancel" style="background:#fff">Cancel</button></div>`;
+  }else if(ZOTDONE){
+    body = `
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        Wrote <b>${ZOTDONE.n}</b> records into the new collection<br>"<b>${esc(ZOTDONE.name)}</b>"
+        ${ZOTDONE.skipped ? `<br><span style="color:var(--ink3)">Skipped ${ZOTDONE.skipped} already in Zotero</span>` : ''}
+        ${ZOTDONE.fail_n ? `<br><span style="color:var(--bad)">${ZOTDONE.fail_n} failed: ${esc((ZOTDONE.failed || []).join('; '))}</span>` : ''}
+        <br><span style="color:var(--ink3)">Refresh Zotero and they will appear.</span>
+      </div>
+      <div class="exbar"><button id="zotUndo" style="background:#fff;color:var(--bad);border-color:var(--bad)">Undo this write</button>
+        <button class="sm" id="zotClose" style="background:#fff">Close</button></div>`;
+  }else if(ZOTPLAN){
+    body = `
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        A new collection "<b>${esc(ZOTPLAN.name)}</b>" will be created and <b>${ZOTPLAN.n}</b> records written into it
+        ${ZOTPLAN.skipped ? ` (skipping ${ZOTPLAN.skipped} already in Zotero)` : ''}:<br>
+        ${ZOTPLAN.no_doi ? `<span style="color:var(--warn)">${ZOTPLAN.no_doi} of them have no DOI, so it cannot be checked
+           whether Zotero already holds the same item; they may end up duplicated — have a look at the samples above first.</span><br>` : ''}
+        <span style="color:var(--ink3)">${(ZOTPLAN.sample || []).map(t => '· ' + esc(t)).join('<br>')}</span>
+      </div>
+      <div class="exbar"><button id="zotConfirm">Confirm write</button>
+        <button class="sm" id="zotBack" style="background:#fff">Back</button></div>`;
+  }else{
+    body = `
+      <div class="exrow" style="flex-direction:column;gap:6px">
+        <input id="zotName" value="${esc(ZOTNAME)}" placeholder="Name of the new collection"
+               style="font-size:12.5px;padding:6px 9px;width:100%">
+      </div>
+      <div class="exmsg">Every import <b>creates a new collection</b>; it is never merged into your existing collections and no existing item is modified.<br>
+        Items already in Zotero are skipped by DOI; anything written can be undone with one click.</div>
+      <div class="exbar"><button id="zotPreview">Preview (${pending} records)</button>
+        <button class="sm" id="zotCancel" style="background:#fff">Cancel</button></div>`;
+  }
+
+  pop.innerHTML = `
+    <div class="ap-title">Zotero integration</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.7">
+      ${ok
+        ? `Connected · <b>${d.n_items}</b> items · <b>${(d.dois || []).length}</b> DOIs · <b>${cols.length}</b> collections
+           ${names.length ? '<br><span style="color:var(--ink3)">Existing: ' + esc(names.join(', ')) + (cols.length > 5 ? ' …' : '') + '</span>' : ''}`
+        : `Not connected: ${esc(d.why || 'unknown reason')}`}
+      ${d.data_dir ? `<br><span style="color:var(--ink3)">Data directory: ${esc(shortPath(d.data_dir))}</span>` : ''}
+      ${d.last_written ? `<br><span style="color:var(--ink3)">Last write: ${esc(d.last_written.name)} (${d.last_written.n} records)</span>` : ''}
+      ${ok ? '' : '<div style="margin-top:7px"><button class="sm" id="zotPickDir" style="background:#fff">Choose the Zotero data directory</button></div>'}
+    </div>
+    <div class="exrow">
+      <span class="exchip ${ZOTMODE === 'write' ? 'on' : ''}" data-m="write">Write to Zotero directly</span>
+      <span class="exchip ${ZOTMODE === 'rdf' ? 'on' : ''}" data-m="rdf">Generate .rdf for manual import</span>
+    </div>
+    ${body}`;
+
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => {
+      if(c.dataset.m){ ZOTMODE = c.dataset.m; ZOTPLAN = null; ZOTDONE = null; }
+      if(c.dataset.g) ZOTGROUP = c.dataset.g;
+      renderZotPop();
+    };
+  });
+  const on = (id, fn) => { const el = $('#' + id); if(el) el.onclick = fn; };
+  on('zotCancel', () => { pop.hidden = true; });
+  on('zotClose', () => { pop.hidden = true; });
+  on('zotBack', () => { ZOTPLAN = null; renderZotPop(); });
+  on('zotGo', doZotRdf);
+  on('zotPreview', doZotPreview);
+  on('zotConfirm', doZotWrite);
+  on('zotUndo', doZotUndo);
+  on('zotPickDir', async () => {
+    const p = await pickFolder('Choose Zotero\'s data directory (the one that contains zotero.sqlite)');
+    if(!p) return;
+    const r = await jpost('/api/zotero/dir', {path: p});
+    if(r.error){ alert(r.error); return; }
+    ZOT = r;
+    ZSET = new Set((r.dois || []).map(x => String(x).toLowerCase()));
+    renderZotPop();
+  });
+  const nm = $('#zotName');
+  if(nm) nm.oninput = () => { ZOTNAME = nm.value; };
+}
+
+function zotRows(){
+  return zotList().map(it => ({
+    title: it.title || '', doi: it.doi || '', journal: '', year: '',
+    first_author: '', path: it.file || ''
+  }));
+}
+
+async function doZotPreview(){
+  const list = zotList();
+  if(!list.length){ alert('The current list is empty'); return; }
+  const btn = $('#zotPreview');
+  if(btn){ btn.disabled = true; btn.textContent = 'Checking…'; }
+  try{
+    const out = await jpost('/api/zotero/write', {rows: zotRows(), name: ZOTNAME, dry_run: true});
+    if(out.error){ alert(out.error); return; }
+    if(!out.n){ alert(out.msg || 'All of these items are already in Zotero'); return; }
+    ZOTPLAN = out;
+    ZOTNAME = out.name;
+    renderZotPop();
+  }catch(e){
+    alert('Preview failed: ' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = 'Preview'; }
+  }
+}
+
+async function doZotWrite(){
+  const btn = $('#zotConfirm');
+  if(btn){ btn.disabled = true; btn.textContent = 'Writing…'; }
+  try{
+    const out = await jpost('/api/zotero/write', {rows: zotRows(), name: ZOTNAME});
+    if(out.error){ alert(out.error); return; }
+    ZOTDONE = out; ZOTPLAN = null;
+    await loadZotero(true);
+    renderZotPop();
+  }catch(e){
+    alert('Write failed: ' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = 'Confirm write'; }
+  }
+}
+
+async function doZotUndo(){
+  const btn = $('#zotUndo');
+  if(btn){ btn.disabled = true; btn.textContent = 'Undoing…'; }
+  try{
+    const out = await jpost('/api/zotero/undo', {});
+    if(out.error){ alert(out.error); return; }
+    alert(`Undone: ${out.items} records deleted`
+      + (out.collection_deleted ? ', and the collection was deleted too' : ', but the collection was not deleted — remove it manually'));
+    ZOTDONE = null;
+    await loadZotero(true);
+    renderZotPop();
+  }catch(e){
+    alert('Undo failed: ' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = 'Undo this write'; }
+  }
+}
+
+async function doZotRdf(){
+  const list = zotList();
+  if(!list.length){ alert('The current list is empty'); return; }
+  const pop = $('#zotPop');
+  const go = $('#zotGo');
+  if(go){ go.disabled = true; go.textContent = 'Generating…'; }
+  try{
+    const out = await jpost('/api/zotero/rdf', {
+      rows: zotRows(), group: ZOTGROUP, tag: ($('#libQ').value || '').trim(), skip_existing: true
+    });
+    if(out.error){ alert(out.error); if(go){ go.disabled = false; go.textContent = 'Retry'; } return; }
+    if(!out.n){
+      pop.innerHTML = `<div class="ap-title">Nothing to import</div>
+        <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0">${esc(out.msg || 'All of these items are already in Zotero')}</div>`;
+      return;
+    }
+    const nm = out.path.split(/[\\/]/).pop();
+    pop.innerHTML = `<div class="ap-title">Zotero import file generated</div>
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        <b>${out.n}</b> records${out.skipped ? `, ${out.skipped} already in Zotero skipped` : ''}<br>
+        → <a href="#" id="zotOpen">${esc(nm)}</a><br>
+        <span style="color:var(--ink3)">In Zotero use <b>File → Import</b> and pick this file.</span>
+      </div>`;
+    const a = $('#zotOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: out.path}); };
+  }catch(e){
+    alert('Generation failed: ' + e);
+    if(go){ go.disabled = false; go.textContent = 'Retry'; }
+  }
+}
+
+$('#btnZot').onclick = async () => {
+  const pop = $('#zotPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  pop.innerHTML = '<div class="ap-title">Reading Zotero…</div>';
+  pop.hidden = false;
+  await loadZotero();
+  ZOTPLAN = null; ZOTDONE = null; ZOTNAME = '';
+  renderZotPop();
+};
+
+// ===================== Library search =====================
+let KSTAT = {};
+
+async function loadKStatus(){
+  const box = $('#kStat');
+  try{
+    const d = await jget('/api/kstatus');
+    KSTAT = d;
+    if(d.built){
+      box.textContent = `Index: ${d.docs} documents — abstracts ${d.papers} · notes ${d.notes} · search records ${d.records}`
+        + (d.skipped_pdf ? ` · ${d.skipped_pdf} PDFs skipped (full text is not extracted)` : '')
+        + (d.built_at ? ` · built ${new Date(d.built_at * 1000).toLocaleString('en-US', {hour12: false})}` : '');
+    }else{
+      box.textContent = 'No index yet — click "Rebuild index" on the right (a few seconds, depending on the size of the library)';
+    }
+  }catch(e){ box.textContent = 'Cannot read the index status: ' + e; }
+}
+
+$('#btnKBuild').onclick = async () => {
+  const btn = $('#btnKBuild');
+  btn.disabled = true; btn.textContent = 'Building index…';
+  $('#kStat').textContent = 'Scanning the library / notes / last search results…';
+  try{
+    const d = await jpost('/api/kbuild', {});
+    if(d.error){ $('#kStat').textContent = 'Failed: ' + d.error; return; }
+    await loadKStatus();
+  }catch(e){
+    $('#kStat').textContent = 'Failed: ' + e;
+  }finally{
+    btn.disabled = false; btn.textContent = 'Rebuild index';
+  }
+};
+
+function kCard(x){
+  const rel = Math.max(0.04, x.rel || 0);
+  const meta = [x.src, x.journal, x.year].filter(Boolean).join(' · ');
+  return `<div class="kcard" data-path="${esc(x.path || '')}" data-doi="${esc(x.doi || '')}">
+    <div class="kt">${esc(x.title || '(untitled)')}</div>
+    <div class="km"><span>${esc(meta)}</span>
+      <span class="kbar"><i style="width:${Math.round(rel * 100)}%"></i></span></div>
+    <div class="ks">${x.snippet || ''}</div>
+  </div>`;
+}
+
+async function doKSearch(){
+  const q = ($('#kq').value || '').trim();
+  if(!q){ $('#kq').focus(); return; }
+  const box = $('#kBox');
+  box.innerHTML = '<div class="empty">Searching…</div>';
+  try{
+    const d = await jpost('/api/ksearch', {q, k: +$('#kLimit').value || 30});
+    if(d.error){ box.innerHTML = `<div class="empty err">${esc(d.error)}</div>`; return; }
+    if(!d.n){
+      box.innerHTML = `<div class="empty">No hits. Try another term, or click "Rebuild index" first.<br>
+        <span style="font-size:12px">Actual query: ${esc(d.expr || '')}</span></div>`;
+      return;
+    }
+    box.innerHTML = `<div class="libstat" style="padding:10px 12px 0">${d.n} hits
+        <span style="color:var(--ink3)"> · query ${esc(d.expr || '')}</span></div>`
+      + d.results.map(kCard).join('');
+    box.querySelectorAll('.kcard').forEach(c => {
+      c.onclick = () => {
+        const p = c.dataset.path;
+        if(p){ jpost('/api/open', {path: p}); return; }
+        if(c.dataset.doi) openUrl('https://doi.org/' + c.dataset.doi);
+      };
+    });
+  }catch(e){
+    box.innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+function renderNotesPop(){
+  const pop = $('#notesPop');
+  if(!pop) return;
+  const eff = KSTAT.notes_dirs || [];
+  const cfg = KSTAT.notes_cfg || [];
+  pop.innerHTML = `
+    <div class="ap-title">Note folders · library search indexes the .md / .txt files here</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.9">
+      ${eff.length
+        ? eff.map(d => `<div style="display:flex;gap:8px;align-items:center">
+            <span style="flex:1;word-break:break-all">${esc(shortPath(d))}</span>
+            ${cfg.indexOf(d) >= 0
+              ? `<span data-del="${esc(d)}" title="Remove from the index" style="cursor:pointer;color:var(--bad);padding:0 3px">×</span>`
+              : '<span style="color:var(--ink3);font-size:11px">default</span>'}
+          </div>`).join('')
+        : 'No note folders yet'}
+    </div>
+    <div class="exbar"><button id="notesAdd">Add folder</button>
+      <button class="sm" id="notesClose" style="background:#fff">Close</button></div>`;
+  pop.querySelectorAll('[data-del]').forEach(x => {
+    x.onclick = async () => {
+      const r = await jpost('/api/notes', {action: 'remove', path: x.dataset.del});
+      if(r.error){ alert(r.error); return; }
+      await loadKStatus(); renderNotesPop();
+    };
+  });
+  const add = $('#notesAdd');
+  if(add) add.onclick = async () => {
+    const p = await pickFolder('Choose the folder holding your notes (.md / .txt)');
+    if(!p) return;
+    const r = await jpost('/api/notes', {action: 'add', path: p});
+    if(r.error){ alert(r.error); return; }
+    await loadKStatus(); renderNotesPop();
+  };
+  const c = $('#notesClose');
+  if(c) c.onclick = () => { pop.hidden = true; };
+}
+
+$('#btnNotes').onclick = () => {
+  const pop = $('#notesPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  renderNotesPop();
+  pop.hidden = false;
+};
+
+$('#btnKSearch').onclick = doKSearch;
+$('#kq').addEventListener('keydown', e => { if(e.key === 'Enter') doKSearch(); });$('#libQ').oninput = () => renderLib();
+$('#libSort').onchange = () => renderLib();
+
+$('#btnLibExport').onclick = async () => {
+  const view = libView();
+  if(!view.length){ alert('Nothing to export'); return; }
+  const btn = $('#btnLibExport');
+  btn.disabled = true; btn.textContent = 'Exporting…';
+  try{
+    const rows = view.map(it => ({
+      name: it.name || '', title: it.title || '', doi: it.doi || '',
+      size_kb: it.size_kb || 0, mtime_txt: libDate(it.mtime), folder: it.folder || ''
+    }));
+    const out = await jpost('/api/library_export', {rows, fmt: 'xlsx'});
+    if(out.error){ alert(out.error); return; }
+    const nm = out.path.split(/[\\/]/).pop();
+    const head = $('#libBox .libstat');
+    if(head) head.innerHTML = `Exported ${out.n} records → <a href="#" id="libOpen">${esc(nm)}</a>`;
+    const a = $('#libOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: out.path}); };
+  }catch(e){
+    alert('Export failed: ' + e);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Export list';
+  }
+};
+
+$('#btnOpenLib').onclick = async () => {
+  const r = await jpost('/api/open', {path: $('#libPath').textContent});
+  if(r.error) alert(r.error);
+};
+
+$('#btnAddSrc').onclick = async () => {
+  let p = '';
+  if(window.pywebview && pywebview.api && pywebview.api.pick_folder){
+    try { p = await pywebview.api.pick_folder(); } catch(e){ p = ''; }
+  }
+  if(!p){
+    p = prompt('Paste a folder to include\n(e.g. Zotero\'s storage folder, or its parent)') || '';
+  }
+  if(!p) return;
+  const r = await jpost('/api/sources', {action:'add', path:p});
+  if(r.error){ alert(r.error); return; }
+  log(['Added library source: ' + p]);
+  loadLibrary(true);
+};
+
+const CFG_READY = loadConfig();
+
+// Supports ?tab=lib to jump straight to the library
+const _tab = new URLSearchParams(location.search).get('tab');
+if(_tab){
+  const el = document.querySelector(`.tab[data-pane="${_tab}"]`);
+  if(el) setTimeout(() => el.click(), 250);
+}
+// ===================== View everything in a new window =====================
+function openUrl(u){
+  if(window.pywebview && pywebview.api && pywebview.api.open_url){
+    pywebview.api.open_url(u); return;
+  }
+  window.open(u, '_blank');
+}
+
+$('#btnOpenAll').onclick = () => {
+  const url = location.origin + '/?view=list';
+  if(window.pywebview && pywebview.api && pywebview.api.open_window){
+    pywebview.api.open_window(url, 'All search results');
+  } else {
+    window.open(url, '_blank', 'width=1240,height=880');
+  }
+};
+
+// ===================== list view (standalone window) =====================
+let allRows = [];
+
+function renderAll(list){
+  if(!list.length){
+    $('#listBox').innerHTML = '<div class="empty">No matching items</div>';
+    return;
+  }
+  $('#listBox').innerHTML = `<table class="ltbl"><thead><tr>
+      <th style="width:40px">#</th>
+      <th>Title / authors / abstract</th>
+      <th style="width:190px">Journal</th>
+      <th style="width:54px">Year</th>
+      <th style="width:52px">IF</th>
+      <th style="width:74px">Quartile</th>
+      <th style="width:54px">Cited</th>
+      <th style="width:56px">OA</th>
+    </tr></thead><tbody>` +
+    list.map((r, n) => `<tr>
+      <td class="num-r">${n + 1}</td>
+      <td>
+        <div class="t">${esc(r.title)}</div>
+        
+        <div class="j">${esc(r.first_author || '')}${r.n_authors > 1 ? (' et al. (' + r.n_authors + ' authors)') : ''}${
+          r.doi ? ' · <a href="#" data-doi="' + esc(r.doi) + '">' + esc(r.doi) + '</a>' : ''}</div>
+        ${absBox(r)}
+        ${meshRow(r)}
+      </td>
+      <td class="j">${typePill(r)}${esc(r.journal || '—')}</td>
+      <td>${r.year || ''}</td>
+      <td class="ifv" id="if-${r.i}">${ifCell(r)}</td>
+      <td id="cas-${r.i}">${casCell(r)}</td>
+      <td class="num-r">${r.cited_by || 0}</td>
+      <td>${r.is_oa ? '<span class="pill oa">OA</span>' : '<span class="pill sub">Subscription</span>'}</td>
+    </tr>`).join('') + '</tbody></table>';
+
+  document.querySelectorAll('#listBox a[data-doi]').forEach(a => {
+    a.onclick = ev => {
+      ev.preventDefault();
+      openUrl('https://doi.org/' + a.dataset.doi);
+    };
+  });
+  bindAbsLinks('#listBox');
+  rankStart('#listBox', list);
+}
+
+async function loadAll(){
+  $('#listBox').innerHTML = '<div class="empty">Loading…</div>';
+  try{
+    const d = await jget('/api/results');
+    allRows = d.results || [];
+    if(!allRows.length){
+      $('#listCount').textContent = '0 papers';
+      $('#listBox').innerHTML = '<div class="empty">No search results yet<br>'
+        + '<span style="font-size:12px">Run a search in the main window first, then click "Open all"</span></div>';
+      return;
+    }
+    $('#listCount').textContent = allRows.length + ' papers';
+    renderAll(allRows);
+  }catch(e){
+    $('#listBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+
+if(new URLSearchParams(location.search).get('view') === 'list'){
+  document.querySelector('.tabs').style.display = 'none';
+  document.querySelector('.badges').style.display = 'none';
+  document.querySelector('.foot').style.display = 'none';
+  $('#pane-search').hidden = true;
+  $('#pane-list').hidden = false;
+  document.title = 'All search results · Miaomiao Paper Tool';
+  CFG_READY.then(loadAll);
+  $('#listFind').oninput = ev => {
+    const k = ev.target.value.trim().toLowerCase();
+    if(!k){
+      renderAll(allRows);
+      $('#listCount').textContent = allRows.length + ' papers';
+      return;
+    }
+    const f = allRows.filter(r =>
+      `${r.title} ${r.abstract || ''} ${r.journal || ''} ${r.doi || ''} ${r.first_author || ''}`
+        .toLowerCase().includes(k));
+    renderAll(f);
+    $('#listCount').textContent = `${f.length} / ${allRows.length} papers`;
+  };
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<!--
+  文献妙妙小工具 v1.4.2 —— 界面
+
+  作者：Ni, Yishu & 大肥鱼（WorkBuddy · DeepSeek）
+  版权所有 © 2026 Ni, Yishu
+  仅供学习交流使用，禁止用于商业用途。
+
+  所有全文均通过出版社公开 API 或开放获取渠道取得，
+  不绕过任何网站的访问控制。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>文献妙妙小工具 v1.4.2</title>
+<style>
+  :root{
+    --bg:#f6f6f3; --card:#fff; --line:#e2e2dc; --line2:#efefe9;
+    --ink:#1f2328; --ink2:#5c6166; --ink3:#8b9095;
+    --accent:#4f6228; --accent-l:#eef1e6;
+    --ok:#2e7d32; --warn:#b26a00; --bad:#b3261e;
+  }
+  *{box-sizing:border-box}
+  html{height:100%}
+  body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+       display:flex;flex-direction:column;
+       font:14px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{width:100%;max-width:1180px;margin:0 auto;padding:22px 20px 20px;
+        flex:1;min-height:0;display:flex;flex-direction:column}
+
+  header{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px}
+  .sub{color:var(--ink3);font-size:12.5px}
+  .badges{display:flex;gap:6px;margin:10px 0 16px;flex-wrap:wrap;
+          align-items:center;position:relative}
+  .acctwrap{position:relative;display:inline-flex}
+  .bd.acct{cursor:pointer;user-select:none;gap:6px}
+  .bd.acct:hover{background:#eef1e4;border-color:var(--accent)}
+  .acctpop{position:absolute;top:calc(100% + 7px);left:0;z-index:90;
+           background:#fff;border:1px solid var(--line2);border-radius:10px;
+           box-shadow:0 10px 30px rgba(0,0,0,.13);padding:11px;min-width:340px}
+  .acctpop[hidden]{display:none}
+  .ap-title{font-size:12px;color:var(--ink3);margin:1px 0 8px}
+  .ap-item{display:flex;justify-content:space-between;gap:12px;align-items:center;
+           padding:8px 10px;border-radius:7px;cursor:pointer}
+  .ap-item:hover{background:#f6f7f2}
+  .ap-item.on{background:var(--accent-l)}
+  .ap-item .nm{font-weight:600;color:var(--ink);font-size:13px}
+  .ap-item .sub{font-size:11.5px;color:var(--ink3);margin-top:2px;
+                font-family:ui-monospace,Consolas,monospace}
+  .ap-item .qt{font-size:12px;color:var(--ink2);white-space:nowrap;
+               font-variant-numeric:tabular-nums}
+  .ap-sep{height:1px;background:var(--line2);margin:9px 0}
+  .ap-add{display:flex;flex-direction:column;gap:7px}
+  .ap-add input{font-size:12.5px;padding:6px 9px}
+  .ap-row{display:flex;gap:7px}
+  .ap-row input{flex:1;min-width:0}
+  .ap-note{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:9px;
+           padding-top:9px;border-top:1px dashed var(--line2)}
+  .ap-note a{color:var(--accent)}
+  /* ---- 导出表格弹层 ---- */
+  .expwrap{position:relative;display:inline-flex}
+  .exppop{position:absolute;bottom:calc(100% + 8px);left:0;z-index:95;
+          background:#fff;border:1px solid var(--line2);border-radius:10px;
+          box-shadow:0 10px 30px rgba(0,0,0,.15);padding:12px;width:336px;
+          max-width:calc(100vw - 36px)}
+  .exppop[hidden]{display:none}
+  .exppop.right{left:auto;right:0}
+  /* 引文扩散的说明文字多，窄了会挤成一列单字，单独放宽 */
+  #citePop{width:400px}
+  /* 整理下载要显示文件名和路径，再宽一点 */
+  #orgPop{width:440px}
+  .exppop.down{top:calc(100% + 8px);bottom:auto}
+  .exchip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;
+          border:1px solid var(--line);background:#fff;font-size:12.5px;color:var(--ink2);
+          cursor:pointer;user-select:none}
+  .exchip:hover{border-color:var(--accent)}
+  .exchip.on{background:var(--accent-l);border-color:var(--accent);color:var(--accent);font-weight:600}
+  .exchip.off{opacity:.4;cursor:not-allowed}
+  .exrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+  .exmsg{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:10px;
+         padding-top:10px;border-top:1px dashed var(--line2)}
+  .exbar{display:flex;gap:8px;margin-top:11px;align-items:center}
+  .exbar button{padding:6px 14px;font-size:12.5px;border-radius:6px}
+  .ap-warn{color:#a33}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:0 0 auto}
+  .dot.ok{background:#5c8a1e}.dot.warn{background:#c99a19}.dot.bad{background:#c0392b}
+  .fmt-item{display:flex;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;
+            align-items:flex-start}
+  .fmt-item:hover{background:#f6f7f2}
+  .fmt-item.on{background:var(--accent-l)}
+  .fmt-item input[type=radio]{margin-top:3px;pointer-events:none}
+  .fmt-item .fn{font-weight:600;font-size:13px;color:var(--ink)}
+  .fmt-item .fd{font-size:11.5px;color:var(--ink3);line-height:1.6;margin-top:2px}
+  .fmt-item .fc{font-size:11.5px;color:var(--ink2);margin-top:3px}
+  .fmt-sw{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:12.5px;
+          color:var(--ink2);cursor:pointer;user-select:none}
+  .bd.ver{font-size:11.5px;color:var(--ink3);cursor:pointer;font-variant-numeric:tabular-nums}
+  .bd.ver:hover{color:var(--accent);border-color:var(--accent)}
+  /* 中文标题 + 期刊指标 */
+  .zh{color:var(--ink2);font-size:12.5px;line-height:1.45;margin-top:3px;display:none}
+  .zh.on{display:block}
+  .ifv{font-variant-numeric:tabular-nums;color:var(--ink);font-size:12.5px;text-align:right}
+  .cas{display:inline-block;font-size:11px;padding:1px 6px;border-radius:9px;white-space:nowrap}
+  .cas.z1{background:#fdecea;color:#b3271e}
+  .cas.z2{background:#fdf4e3;color:#a5651a}
+  .cas.z3{background:#eef2f9;color:#3d5c8a}
+  .cas.z4{background:#f2f2ee;color:#7a7a72}
+  .cas.top{box-shadow:inset 0 0 0 1px currentColor}
+  .dim{color:#bcbcb3}
+  .jmkey{font-size:12.5px;padding:6px 9px;width:100%}
+  /* 摘要 + DOI 链接 */
+  .absbox{margin-top:4px}
+  .absbox>summary{cursor:pointer;font-size:11.5px;color:var(--ink3);user-select:none;
+                  outline:none;display:inline-block;padding:1px 0}
+  .absbox>summary:hover{color:var(--accent)}
+  .absbox[open]>summary{color:var(--accent)}
+  .absen{font-size:12px;line-height:1.65;color:var(--ink2);margin-top:5px;max-height:132px;
+         overflow:auto;background:#fbfbf8;border:1px solid var(--line2);border-radius:6px;
+         padding:8px 10px;white-space:normal}
+  .abszh{font-size:12.5px;line-height:1.75;color:var(--ink);margin-top:5px;max-height:160px;
+         overflow:auto;background:#fdfcf3;border:1px solid #e9e5d2;border-radius:6px;
+         padding:8px 10px;white-space:pre-wrap}
+  a.doilink{color:var(--accent);text-decoration:none;font-family:ui-monospace,Consolas,monospace;
+            font-size:11.5px}
+  a.doilink:hover{text-decoration:underline}
+  .absbar{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .absbar[hidden]{display:none}
+  .abstr{font-size:11.5px;padding:3px 10px;border-radius:5px;background:#fff;color:var(--accent);
+         border:1px solid var(--accent);cursor:pointer}
+  .abstr:hover{background:var(--accent-l)}
+  .abstr:disabled{opacity:.5;cursor:default}
+  .abstip{font-size:11px;color:var(--ink3)}
+  .about-hd{font-size:14.5px;font-weight:600;color:var(--ink)}
+  .about-hd span{color:var(--ink3);font-weight:400;font-size:12.5px;margin-left:6px}
+  .about-meta{font-size:12.5px;color:var(--ink2);margin-top:9px;line-height:1.9}
+  .about-law{font-size:12px;color:var(--ink2);line-height:1.8;margin-top:10px;
+             padding:9px 11px;background:#fdf8ee;border:1px solid #f0e4c8;border-radius:7px}
+  .about-law b{color:#a5651a}
+  .bd{font-size:11.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);
+      background:var(--card);color:var(--ink2)}
+  .bd.on{background:var(--accent-l);border-color:#cfd8bb;color:var(--accent)}
+  .bd.off{background:#fdf3e7;border-color:#f0dcc0;color:var(--warn)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .bar{display:flex;flex-direction:column;gap:9px;padding:14px}
+  .brow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .brow #q{flex:1 1 320px;min-width:180px}
+  .fl{display:flex;align-items:center;gap:6px;color:var(--ink2);
+      font-size:13px;white-space:nowrap;user-select:none}
+  select{border:1px solid var(--line2);background:#fff;color:var(--ink);
+         border-radius:6px;padding:6px 7px;font:inherit;font-size:13px;cursor:pointer}
+  button.sm{padding:6px 12px;font-size:12.5px;border-radius:6px;flex:0 0 auto;
+            align-self:auto;background:#fff;color:var(--accent)}
+  button.sm:hover{background:#eaf1dd}
+  .syntax{background:#fbfbf8;border:1px solid var(--line2);border-radius:8px;
+          padding:11px 14px;font-size:12.5px;line-height:1.9;color:var(--ink2)}
+  .syntax b{color:var(--ink)}
+  .syntax code{background:#eef1e4;color:var(--accent);padding:1px 6px;border-radius:4px;
+               font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .eg{display:inline-block;background:#fff;border:1px solid var(--line2);
+      border-radius:5px;padding:3px 9px;margin:3px 6px 3px 0;cursor:pointer;
+      font-size:12px;color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+  .eg:hover{background:#eaf1dd;border-color:var(--accent);color:var(--accent)}
+  .errbox{color:#a33;background:#fdf2f2;border:1px solid #f0d5d5;white-space:pre-wrap;
+          border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.8}
+  .errtip{margin-top:10px;padding-top:9px;border-top:1px dashed #e2cccc;
+          color:#777;font-size:12.5px;white-space:normal}
+  .find{flex:0 1 250px;min-width:130px}
+  .ltbl{width:100%;border-collapse:collapse;font-size:13px}
+  .ltbl thead th{position:sticky;top:0;z-index:2;background:#f1f3e9;color:var(--ink2);
+                 font-size:12px;font-weight:600;text-align:left;padding:9px 10px;
+                 border-bottom:1px solid var(--line2)}
+  .ltbl tbody td{padding:10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  .ltbl tbody tr:hover{background:#fbfbf8}
+  .ltbl details summary{cursor:pointer;color:var(--accent);font-size:12px;
+                        margin-top:6px;user-select:none;outline:none}
+  .ltbl a{color:var(--accent);text-decoration:none}
+  .ltbl a:hover{text-decoration:underline}
+  .abs{color:var(--ink2);font-size:12.5px;line-height:1.75;margin-top:8px;
+       padding:9px 11px;background:#fbfbf8;border:1px solid var(--line2);border-radius:6px}
+  input[type=text],input[type=number]{
+    border:1px solid var(--line);border-radius:7px;padding:8px 11px;font:inherit;
+    background:#fff;color:var(--ink);outline:none}
+  input[type=text]:focus,input[type=number]:focus{border-color:var(--accent)}
+  #q{flex:1 1 320px;min-width:190px}
+  .yr{width:82px}
+  .num{width:70px}
+  button{border:1px solid var(--accent);background:var(--accent);color:#fff;
+         border-radius:7px;padding:8px 16px;font:inherit;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.ghost{background:#fff;color:var(--accent)}
+  .chk{display:flex;align-items:center;gap:5px;color:var(--ink2);font-size:13px;user-select:none}
+
+  .tbl{margin-top:14px;overflow:auto;border-radius:10px;width:100%;
+       flex:1 1 auto;min-height:120px}
+  .tbl > table{min-width:100%}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{position:sticky;top:0;background:#fafaf7;text-align:left;font-weight:600;
+           color:var(--ink2);padding:9px 10px;border-bottom:1px solid var(--line);
+           font-size:12px;white-space:nowrap;z-index:1}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:#fbfbf8}
+  tbody tr.sel{background:var(--accent-l)}
+  .t{line-height:1.4;color:var(--ink)}
+  .j{color:var(--ink3);font-size:12px;margin-top:2px}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px}
+  .pill.oa{background:#e7f3e8;color:var(--ok)}
+  .pill.sub{background:#f2f2ee;color:var(--ink3)}
+  .pill.rev{background:#f3ece2;color:#8a5a1e;margin-right:5px}
+  .pill.mild{background:#ecece2;color:#6b6b5c;margin-right:5px}
+  .pill.seed{background:#eef1e6;color:#4f6228;margin-right:5px}
+  .mesh{margin-top:4px;line-height:1.9}
+  .mesh span{display:inline-block;font-size:10.5px;color:#6b6b5c;background:#f4f4ee;
+             border-radius:3px;padding:0 5px;margin:0 3px 0 0}
+  .num-r{text-align:right;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+  .foot{flex:0 0 auto;margin-top:12px}
+  .footin{display:flex;flex-direction:column;gap:10px;padding:14px}
+  .logs{width:100%;min-width:0;height:76px;overflow:auto;background:#fbfbf8;border:1px solid var(--line2);
+        border-radius:8px;padding:9px 11px;font:12px/1.6 ui-monospace,Consolas,monospace;
+        white-space:pre-wrap;color:var(--ink2)}
+  .side{width:100%;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}
+  .side button{flex:0 0 auto;align-self:stretch}
+  .side .prog{flex:1 1 150px;min-width:100px}
+  .side .stat{flex:0 0 auto;gap:6px}
+  .side .stat span{color:var(--ink3)}
+  .side .hint{flex:1 1 100%;margin-top:-2px}
+  .prog{height:7px;background:#ecece5;border-radius:5px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+  .stat{font-size:12px;color:var(--ink2);display:flex;justify-content:space-between}
+  .stat b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .hint{font-size:11.5px;color:var(--ink3);line-height:1.5}
+  .err{color:var(--bad)}
+  .empty{padding:36px;text-align:center;color:var(--ink3);font-size:13px}
+  td .t{word-break:break-word}
+
+    .yr,.num{flex:0 0 auto}
+  }
+  /* 标签页 */
+  .tabs{display:flex;gap:2px;margin:0 0 12px;border-bottom:1px solid var(--line)}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--ink3);
+       padding:9px 15px;font-size:13.5px;cursor:pointer;border-radius:0;margin-bottom:-1px}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+  .tab .cnt{font-size:11px;background:var(--accent-l);color:var(--accent);
+            padding:1px 6px;border-radius:8px;margin-left:5px}
+  .libbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px}
+  tr.librow{cursor:pointer}
+  tr.librow:hover td{background:#fbfbf5}
+  .pill.zot{background:#e7ecf7;color:#3d5c8a}
+  /* ---- 库内搜索 ---- */
+  .kcard{background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:9px 12px}
+  .kcard:hover{border-color:var(--accent)}
+  .kcard .kt{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.45;cursor:pointer}
+  .kcard .kt:hover{text-decoration:underline}
+  .kcard .km{font-size:12px;color:var(--ink3);margin-top:3px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .kcard .ks{font-size:12.5px;color:var(--ink2);margin-top:7px;line-height:1.62;
+             background:#fafaf5;border-left:2px solid var(--line);padding:6px 9px;border-radius:0 5px 5px 0}
+  .kcard .ks b{color:var(--accent);background:#eef1e6;padding:0 2px;border-radius:3px}
+  .kbar{height:3px;background:#ecece5;border-radius:2px;overflow:hidden;width:54px;display:inline-block;vertical-align:middle}
+  .kbar i{display:block;height:100%;background:var(--accent)}
+  .libpath{flex:1 1 300px;min-width:0;font-size:12.5px;color:var(--ink2);
+           word-break:break-all;line-height:1.6}
+  .libpath b{color:var(--ink);font-weight:600;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .libstat{font-size:12px;color:var(--ink3);margin-top:3px}
+  .pane{flex:1;min-height:0;display:flex;flex-direction:column}
+  .pane[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>文献妙妙小工具</h1>
+    <span class="sub">官方 API + 开放获取渠道 · 不绕过任何访问控制</span>
+  </header>
+  <div class="badges" id="badges"></div>
+
+  <nav class="tabs">
+    <button class="tab on" data-pane="search">检索下载</button>
+    <button class="tab" data-pane="lib">文献库<span class="cnt" id="libCnt"></span></button>
+    <button class="tab" data-pane="find">库内搜索</button>
+  </nav>
+
+  <div class="pane" id="pane-search">
+
+  <div class="card">
+    <div class="bar">
+      <div class="brow">
+        <input id="q" type="text" placeholder="shrimp AND (aroma OR flavor)　·　支持布尔式 / 粘标题 / 直接粘 DOI">
+        <label class="fl">排序
+          <select id="sort" title="结果的排列顺序">
+            <option value="relevance" selected>相关度</option>
+            <option value="cited_desc">被引 高→低</option>
+            <option value="cited_asc">被引 低→高</option>
+            <option value="date_desc">年份 新→旧</option>
+            <option value="date_asc">年份 旧→新</option>
+          </select>
+        </label>
+        <button id="btnSearch">检索</button>
+      </div>
+      <div class="brow">
+        <label class="fl">字段
+          <select id="field" title="关键词默认在哪个字段里找">
+            <option value="all" selected>任意字段</option>
+            <option value="tiab">标题+摘要</option>
+            <option value="title">标题</option>
+            <option value="abstract">摘要</option>
+            <option value="fulltext">全文</option>
+          </select>
+        </label>
+        <label class="fl">默认组合
+          <select id="op" title="两个词之间没写 AND/OR 时，用哪个">
+            <option value="AND" selected>AND</option>
+            <option value="OR">OR</option>
+          </select>
+        </label>
+        <input id="y1" class="yr" type="number" placeholder="起始年">
+        <input id="y2" class="yr" type="number" placeholder="结束年">
+        <input id="lim" class="num" type="number" value="100" min="1" max="1000" title="要取回多少条（最多 1000；配了 OpenAlex key 才能超过 200）">
+        <label class="fl">类型
+          <select id="dtype" title="要哪种文献：研究论文 / 综述 / 学位论文 / 预印本…">
+            <option value="article" selected>研究论文</option>
+            <option value="review">综述</option>
+            <option value="article+review">研究论文 + 综述</option>
+            <option value="dissertation">学位论文</option>
+            <option value="preprint">预印本</option>
+            <option value="book-chapter">图书章节</option>
+            <option value="all">不限类型</option>
+          </select>
+        </label>
+        <label class="chk"><input id="oa" type="checkbox"> 只要 OA</label>
+        <button id="btnHelp" class="sm">语法</button>
+      </div>
+      <div class="syntax" id="syntax" hidden>
+        <b>运算符</b>（大小写都行，前后留空格）<br>
+        <code>AND</code> 两个词都要有　<code>OR</code> 出现任一个即可　
+        <code>NOT</code> 或前缀 <code>-</code> 排除　<code>( )</code> 分组改变优先级<br>
+        <b>字段前缀</b>（写了就覆盖上面的「字段」下拉）<br>
+        <code>title:</code> 标题　<code>abstract:</code> 摘要　
+        <code>tiab:</code> 标题+摘要　<code>fulltext:</code> 全文<br>
+        <b>精确短语</b>用英文双引号：<code>"lipid oxidation"</code>　
+        不加引号时按分词处理，命中会宽松很多<br>
+        <b>直接定位</b>：粘 DOI（<code>10.1111/ijfs.15747</code> 或 <code>https://doi.org/…</code>）、
+        <code>W…</code>（OpenAlex ID）、<code>pmid:12345</code> 都行，会直接查出那一篇，不当作关键词搜<br>
+        <b>通配符</b> <code>*</code> 匹配任意后缀、<code>?</code> 匹配单个字符。
+        只能用在词尾，程序会自动切到不词干化的 exact 字段：<br>
+        <code>tiab:shrim*</code>　→ 同时命中 shrimp / shrimps / shrimplike　·　
+        <code>title:antioxid*</code>　→ antioxidant / antioxidants / antioxidative<br>
+        <span style="color:#999">注：普通词已由 OpenAlex 自动做词干化（shrimp 与 shrimps 同结果），
+        通配符主要用于一个词根下差异较大的词形</span><br>
+        <b>文献类型</b>（上面「类型」下拉，检索时生效）<br>
+        研究论文 / 综述 / 学位论文 / 预印本 / 图书章节 / 不限类型。
+        综述单独选时才查得出来——以前默认只查研究论文，综述是搜不到的。<br>
+        <span style="color:#999">注：OpenAlex 对综述标注得不全（很多综述被标成研究论文），
+        所以只选「综述」结果会偏少；要全一点用「研究论文 + 综述」，
+        标题里带 review / survey / overview 但被标成研究论文的，列表里会挂「疑似综述」灰标</span><br>
+        <b>点一下填入检索框</b>（不会立即检索，方便你改完再执行）<br>
+        <span class="eg" data-q="shrimp AND aroma">shrimp AND aroma</span>
+        <span class="eg" data-q="shrimp AND (aroma OR flavor)">shrimp AND (aroma OR flavor)</span>
+        <span class="eg" data-q="shrimp AND NOT fish">shrimp AND NOT fish</span>
+        <span class="eg" data-q="title:shrimp AND abstract:aroma">title:shrimp AND abstract:aroma</span>
+        <span class="eg" data-q='"lipid oxidation" AND (shrimp OR prawn)'>&quot;lipid oxidation&quot; AND (shrimp OR prawn)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card tbl" id="tblBox">
+    <div class="empty">输入关键词后点「检索」<br><span style="font-size:12px">支持 AND / OR / NOT 与括号；中文可直接输入，会先自动转成英文；点右侧「语法」看示例</span></div>
+  </div>
+
+  <div class="card foot">
+    <div class="footin">
+      <div class="logs" id="logs">等待操作…</div>
+      <div class="side">
+        <button id="btnFetch" disabled>下载选中</button>
+        <span class="expwrap">
+          <button id="btnExport" class="sm" disabled
+                  title="把检索结果导成 Excel / CSV：带中文标题、IF、中科院分区、DOI">导出表格</button>
+          <div class="exppop" id="exPop" hidden></div>
+        </span>
+        <button id="btnOpenAll" class="sm" disabled title="把本次检索到的全部文献另开一个窗口看">打开全部</button>
+        <span class="expwrap">
+          <button id="btnCites" class="sm" disabled
+                  title="拿勾选的几篇当种子，顺藤摸瓜找出引用它的、它引用的（不用再想关键词）">引文扩散</button>
+          <div class="exppop right" id="citePop" hidden></div>
+        </span>
+        <button id="btnBack" class="sm" hidden title="回到刚才的关键词检索结果">返回关键词结果</button>
+        <div class="prog"><i id="progBar"></i></div>
+        <div class="stat"><span>进度</span><b id="pDone">0 / 0</b></div>
+        <div class="stat"><span>成功</span><b id="pOk">0</b></div>
+        <div class="stat"><span>无来源</span><b id="pMiss">0</b></div>
+        <div class="hint" id="hint">选中条目后开始下载。文件落在程序目录的 <code>文献库/</code>。</div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /pane-search -->
+
+  <div class="pane" id="pane-lib" hidden>
+    <div class="card">
+      <div class="libbar" style="padding-bottom:6px">
+        <div class="libpath">
+          文献库：<b id="libPath">读取中…</b>
+          <div class="libstat" id="libStat">点「扫描」读取库里的 PDF</div>
+        </div>
+        <button id="btnScan">扫描</button>
+        <button class="ghost" id="btnAddSrc">添加目录</button>
+        <button class="ghost" id="btnOpenLib">打开文件夹</button>
+        <button class="ghost" id="btnLibExport" disabled
+                title="把当前筛选出的清单导成 Excel（文件名 / 标题 / DOI / 大小 / 修改时间）">导出清单</button>
+        <span class="expwrap">
+          <button class="ghost" id="btnOrganize"
+                  title="把「下载」文件夹里手动下到的 PDF 认出来、改名、挪进文献库">整理下载</button>
+          <div class="exppop right down" id="orgPop" hidden></div>
+        </span>
+        <span class="expwrap">
+          <button class="ghost" id="btnZot" title="和本机 Zotero 联动：哪些已经在库里、生成带分类的导入文件">Zotero</button>
+          <div class="exppop right down" id="zotPop" hidden></div>
+        </span>
+      </div>
+      <div class="libbar" style="padding-top:0">
+        <input id="libQ" class="find" placeholder="筛选文件名 / 标题 / DOI / 目录" style="flex:1 1 260px">
+        <select id="libSort" title="清单排序">
+          <option value="name">按文件名</option>
+          <option value="mtime">按修改时间（新→旧）</option>
+          <option value="size">按大小（大→小）</option>
+          <option value="doi">缺 DOI 的排前面</option>
+        </select>
+      </div>
+    </div>
+    <div class="card tbl" id="libBox">
+      <div class="empty">点「扫描」读取文献库里的 PDF / XML<br>
+        <span style="font-size:12px">下载的文件自动存进这里；Zotero 或别处的 PDF 可「添加目录」后一并纳入</span></div>
+    </div>
+  </div>
+
+  <div class="pane" id="pane-find" hidden>
+    <div class="card">
+      <div class="libbar" style="padding-bottom:6px">
+        <div class="libpath">
+          库内搜索：查<strong>文献库的摘要</strong>、<strong>你自己写的笔记</strong>、<strong>上次检索结果</strong>
+          <div class="libstat" id="kStat">索引还没建</div>
+        </div>
+        <span class="expwrap">
+          <button class="ghost" id="btnNotes" title="库内搜索要索引哪几个笔记文件夹">笔记目录</button>
+          <div class="exppop right down" id="notesPop" hidden></div>
+        </span>
+        <button class="ghost" id="btnKBuild" title="扫描文献库 / 笔记 / 上次检索结果，重建索引">重建索引</button>
+      </div>
+      <div class="libbar" style="padding-top:0">
+        <input id="kq" class="find" placeholder="吡嗪 脂质氧化 / pyrazine / 真空 70℃（中文英文都行）" style="flex:1 1 320px">
+        <button id="btnKSearch">搜索</button>
+        <select id="kLimit" title="返回条数">
+          <option>20</option><option selected>30</option><option>60</option>
+        </select>
+      </div>
+    </div>
+    <div class="card tbl" id="kBox">
+      <div class="empty">提问就行，比如「吡嗪 和 脂质氧化」「真空 70℃ 醛类」「TBARS 腥味」<br>
+        <span style="font-size:12px">中文会经术语表转成英文一起搜，所以英文摘要和中文笔记都能命中；不抽订阅刊正文</span></div>
+    </div>
+  </div>
+  <div class="pane" id="pane-list" hidden>
+    <div class="card">
+      <div class="libbar">
+        <div class="libpath">
+          全部检索结果：<b id="listCount">—</b>
+          <div class="libstat" id="listHint">按上次检索的条件和排序，这里是完整的列表</div>
+        </div>
+        <input id="listFind" class="find" placeholder="在结果里筛选标题 / 摘要 / 期刊">
+      </div>
+    </div>
+    <div class="card tbl" id="listBox"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let rows = [], sel = new Set(), polling = null, STG = {};
+
+async function jget(u){ const r = await fetch(u); return r.json(); }
+async function jpost(u, b){
+  const r = await fetch(u, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(b)});
+  return r.json();
+}
+
+function log(t){
+  const el = $('#logs');
+  el.textContent = t.join('\n');
+  el.scrollTop = el.scrollHeight;
+}
+
+let ACCTS = [], QUOTA = {};
+
+function fmtUsd(v){
+  v = v || 0;
+  return v >= 0.1 ? v.toFixed(2) : v.toFixed(3);
+}
+
+function quotaState(){
+  if(QUOTA.error) return 'bad';
+  const lim = QUOTA.limit_usd || 0, rem = QUOTA.remaining_usd || 0;
+  if(!lim) return 'bad';
+  if(rem <= 0) return 'bad';
+  return (rem / lim < 0.2) ? 'warn' : 'ok';
+}
+
+function refreshChip(){
+  const chip = $('#acctChip');
+  if(!chip) return;
+  const a = ACCTS.find(x => x.active) || {};
+  const name = a.label || '共享额度';
+  let dot = 'ok', txt;
+  if(QUOTA.error){
+    // 后端给的是「异常类名: 说明」，只截前 14 字符会只剩类名（QuotaExceeded / RuntimeError）
+    // 那种词对用户没有意义。这里翻成人话，完整说明留在 chip 的 title 里
+    dot = 'bad';
+    txt = name + ' · ' + (/QuotaExceeded/.test(QUOTA.error) ? '额度已用完' : '查询失败');
+  } else if(!QUOTA.limit_usd){
+    dot = 'warn'; txt = name + ' · 额度未知';
+  } else {
+    dot = quotaState();
+    txt = name + ' · ' + fmtUsd(QUOTA.remaining_usd) + '/' + fmtUsd(QUOTA.limit_usd);
+  }
+  chip.innerHTML = '<span class="dot ' + dot + '"></span>' + esc(txt) + ' ▾';
+  chip.title = QUOTA.error ? QUOTA.error
+    : '今日剩余 ' + fmtUsd(QUOTA.remaining_usd) + ' / ' + fmtUsd(QUOTA.limit_usd) + ' USD'
+      + '（' + (QUOTA.remaining_calls || 0) + ' 次请求），' + (QUOTA.reset ? (QUOTA.reset/3600).toFixed(1) + ' 小时后重置' : '')
+      + '\n点击切换账户';
+}
+
+async function loadQuota(force){
+  try{
+    QUOTA = await jget('/api/quota' + (force ? '?force=1' : ''));
+    if(QUOTA.accounts) ACCTS = QUOTA.accounts;
+  }catch(e){
+    QUOTA = {error: '读取失败'};
+  }
+  refreshChip();
+  const pop = $('#acctPop');
+  if(pop && !pop.hidden) renderPop();
+}
+
+function renderPop(){
+  const pop = $('#acctPop');
+  if(!pop) return;
+  const rows = ACCTS.map(a => {
+    let qt = '点击切换';
+    if(a.active){
+      if(QUOTA.error) qt = '<span class="ap-warn">' + esc(QUOTA.error.slice(0, 22)) + '</span>';
+      else if(QUOTA.limit_usd) qt = fmtUsd(QUOTA.remaining_usd) + ' / ' + fmtUsd(QUOTA.limit_usd);
+      else qt = '—';
+    }
+    return `<div class="ap-item ${a.active ? 'on' : ''}" data-idx="${a.index}">
+      <div><div class="nm">${esc(a.label)}${a.active ? ' ✓' : ''}</div>
+        <div class="sub">${esc(a.email || '未填邮箱')} · …${esc(a.tail)}</div></div>
+      <div class="qt">${qt}</div></div>`;
+  }).join('');
+
+  pop.innerHTML = `
+    <div class="ap-title">OpenAlex 账户 · 每个 key 独立 $1/天</div>
+    ${rows || '<div class="ap-note" style="margin:0">还没配 key，目前走出口 IP 的共享额度（$0.10/天，很容易被同网其他人用完）</div>'}
+    <div class="ap-sep"></div>
+    <div class="ap-add">
+      <div class="ap-row">
+        <input id="apEmail" placeholder="邮箱，用它申请新 key">
+        <button class="sm" id="apReq">申请</button>
+      </div>
+      <div class="ap-row">
+        <input id="apKey" placeholder="已有 key 直接粘这里">
+        <input id="apLabel" placeholder="备注" style="max-width:96px">
+        <button class="sm" id="apSave">添加</button>
+      </div>
+    </div>
+    <div class="ap-note">
+      <a href="#" id="apRefresh">刷新额度</a>　·　
+      <a href="#" id="apSignup">去官方页面申请</a><br>
+      额度用完只能等 UTC 午夜重置，换一个账户就能继续用。
+    </div>`;
+  bindPop();
+}
+
+function bindPop(){
+  const pop = $('#acctPop');
+  pop.querySelectorAll('.ap-item').forEach(it => {
+    it.onclick = async () => {
+      const i = +it.dataset.idx;
+      if((ACCTS[i] || {}).active) return;
+      it.style.opacity = .45;
+      const d = await jpost('/api/account/switch', {index: i});
+      if(d.error){ it.style.opacity = 1; alert(d.error); return; }
+      QUOTA = d;
+      if(d.accounts) ACCTS = d.accounts;
+      refreshChip(); renderPop();
+      log(['已切换到账户：' + ((ACCTS.find(a => a.active) || {}).label || '')]);
+    };
+  });
+
+  const req = $('#apReq');
+  if(req) req.onclick = async () => {
+    const email = ($('#apEmail').value || '').trim();
+    if(!email){ $('#apEmail').focus(); return; }
+    req.disabled = true; req.textContent = '申请中…';
+    try{
+      const d = await jpost('/api/account/request', {email});
+      if(d.error){ alert(d.error); return; }
+      $('#apKey').value = d.api_key || '';
+      $('#apLabel').value = email;
+      log(['已为 ' + email + ' 申请到新 key（…' + (d.api_key || '').slice(-4) + '）',
+           '现在去邮箱点「Activate your OpenAlex API key」激活，回来点「添加」']);
+      alert('key 已生成，填在下面的输入框里了：\n\n' + d.api_key
+        + '\n\n但必须先激活：去 ' + email + ' 收一封标题为'
+        + '\n「Activate your OpenAlex API key」的邮件，点里面的按钮。'
+        + '\n激活后回来点「添加」即可。');
+    }catch(e){ alert(String(e)); }
+    finally{ req.disabled = false; req.textContent = '申请'; }
+  };
+
+  const save = $('#apSave');
+  if(save) save.onclick = async () => {
+    const key = ($('#apKey').value || '').trim();
+    if(!key){ $('#apKey').focus(); return; }
+    save.disabled = true; save.textContent = '验证中…';
+    try{
+      const d = await jpost('/api/account/add', {
+        api_key: key,
+        email: ($('#apEmail').value || '').trim(),
+        label: ($('#apLabel').value || '').trim()
+      });
+      if(d.error){ alert(d.error); return; }
+      QUOTA = d;
+      if(d.accounts) ACCTS = d.accounts;
+      refreshChip(); renderPop();
+      log(['已添加并切换到新账户' + (QUOTA.error ? '　⚠ ' + QUOTA.error : '')]);
+    }finally{ save.disabled = false; save.textContent = '添加'; }
+  };
+
+  const rf = $('#apRefresh');
+  if(rf) rf.onclick = ev => { ev.preventDefault(); loadQuota(true); };
+  const su = $('#apSignup');
+  if(su) su.onclick = ev => {
+    ev.preventDefault();
+    const ok = QUOTA && QUOTA.signup ? QUOTA.signup : 'https://openalex.org/settings/api';
+    openUrl(ok);
+  };
+}
+
+// ---------------- 存储格式 ----------------
+function refreshStgChip(){
+  const el = $('#stgChip');
+  if(!el) return;
+  const f = (STG.formats || {})[STG.save_format] || {};
+  el.textContent = f.label || STG.save_format || '存储';
+  el.title = (f.cost || '') + '　·　点击切换存储格式';
+}
+
+function renderStgPop(){
+  const pop = $('#stgPop');
+  if(!pop) return;
+  const fmts = STG.formats || {};
+  const keys = Object.keys(fmts);
+  pop.innerHTML = `
+    <div class="ap-title">正文存成什么格式（省空间的关键）</div>
+    ${keys.map(k => `
+      <label class="fmt-item ${STG.save_format === k ? 'on' : ''}" data-fmt="${k}">
+        <input type="radio" name="fmt" ${STG.save_format === k ? 'checked' : ''}>
+        <div>
+          <div class="fn">${esc(fmts[k].label || k)}</div>
+          <div class="fd">${esc(fmts[k].desc || '')}</div>
+          <div class="fc">${esc(fmts[k].cost || '')}</div>
+        </div>
+      </label>`).join('')}
+    <label class="fmt-sw">
+      <input type="checkbox" id="stgPrev" ${STG.keep_preview_pdf ? 'checked' : ''}>
+      只有首页时，另存一张首页图（多占 ~245 KB/篇）
+    </label>
+    <div class="ap-note">
+      选 PDF 但拿不到完整版 → 自动退成 XML；选 XML 但该刊没有 XML（MDPI / BMC）→ 退成 PDF。
+    </div>`;
+  pop.querySelectorAll('.fmt-item').forEach(it => {
+    it.onclick = () => setStg({save_format: it.dataset.fmt});
+  });
+  const pv = $('#stgPrev');
+  if(pv) pv.onchange = ev => setStg({keep_preview_pdf: ev.target.checked});
+}
+
+async function setStg(patch){
+  let d;
+  try{ d = await jpost('/api/storage', patch); }
+  catch(e){ alert(String(e)); return; }
+  if(d.error){ alert(d.error); return; }
+  STG.save_format = d.save_format;
+  STG.keep_preview_pdf = !!d.keep_preview_pdf;
+  if(d.formats) STG.formats = d.formats;
+  refreshStgChip();
+  const pop = $('#stgPop');
+  if(pop && !pop.hidden) renderStgPop();
+}
+
+function renderVerPop(){
+  const pop = $('#verPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="about-hd">文献妙妙小工具<span>v1.4.2</span></div>
+    <div class="about-meta">
+      作者：Ni, Yishu &amp; 大肥鱼（WorkBuddy · DeepSeek）<br>
+      © 2026 Ni, Yishu<br>
+      致谢：Sun, Wenbin 对软件的试用与调试
+    </div>
+    <div class="about-law">
+      <b>仅供学习交流使用，禁止用于商业用途。</b><br>
+      所有全文均通过出版社公开 API 或开放获取渠道取得，
+      不绕过任何网站的访问控制，不抓取需要订阅鉴权的页面。
+    </div>
+    <div class="ap-note" style="margin-top:9px">
+      检索数据来自 OpenAlex，全文来自 Unpaywall / arXiv / PMC OA /
+      出版社官方 API（Elsevier Article Retrieval）。<br>
+      标题中译来自 MyMemory，IF / 中科院分区来自 easyScholar（需自己的免费密钥）。
+    </div>`;
+}
+
+function togglePop(which){
+  const MAP = { acct: '#acctPop', stg: '#stgPop', jm: '#jmPop', ver: '#verPop' };
+  const cur = $(MAP[which]);
+  if(!cur) return;
+  const wasHidden = cur.hidden;
+  Object.values(MAP).forEach(sel => {
+    const el = $(sel);
+    if(el) el.hidden = true;
+  });
+  if(!wasHidden) return;
+  if(which === 'acct') renderPop();
+  else if(which === 'stg') renderStgPop();
+  else if(which === 'jm') renderJmPop();
+  else renderVerPop();
+  cur.hidden = false;
+}
+
+async function loadConfig(){
+  const c = await jget('/api/config');
+  ACCTS = c.accounts || [];
+  STG = {
+    save_format: c.save_format || 'xmlgz',
+    keep_preview_pdf: !!c.keep_preview_pdf,
+    formats: c.formats || {}
+  };
+  JM = {
+    ok: !!c.easyscholar,
+    tail: c.easyscholar_tail || '',
+    zh: c.zh_title !== false
+  };
+  const b = $('#badges');
+  b.innerHTML = `
+    <div class="acctwrap">
+      <span class="bd on acct" id="acctChip"><span class="dot warn"></span>读取额度…</span>
+      <div class="acctpop" id="acctPop" hidden></div>
+    </div>
+    <div class="acctwrap">
+      <span class="bd acct" id="stgChip">存储…</span>
+      <div class="acctpop" id="stgPop" hidden></div>
+    </div>
+    <div class="acctwrap">
+      <span class="bd acct" id="jmChip"><span class="dot bad"></span>期刊指标</span>
+      <div class="acctpop" id="jmPop" hidden style="min-width:352px"></div>
+    </div>
+    <span class="bd ${c.email ? 'on' : 'off'}">${c.email ? '✓' : '✗'} 邮箱</span>
+    <span class="bd ${c.elsevier_api_key ? 'on' : 'off'}">${c.elsevier_api_key ? '✓' : '✗'} Elsevier key</span>
+    <span class="bd ${c.elsevier_insttoken ? 'on' : 'off'}">${c.elsevier_insttoken ? '✓' : '✗'} insttoken</span>
+    <span class="bd">限速 ${c.rps} req/s</span>
+    <div class="acctwrap">
+      <span class="bd ver" id="verChip">v1.4.2</span>
+      <div class="acctpop" id="verPop" hidden style="left:auto;right:0;min-width:300px"></div>
+    </div>`;
+
+  $('#acctChip').onclick = ev => { ev.stopPropagation(); togglePop('acct'); };
+  $('#stgChip').onclick = ev => { ev.stopPropagation(); togglePop('stg'); };
+  $('#jmChip').onclick = ev => { ev.stopPropagation(); togglePop('jm'); };
+  $('#verChip').onclick = ev => { ev.stopPropagation(); togglePop('ver'); };
+  refreshStgChip();
+  refreshJmChip();
+  document.addEventListener('click', ev => {
+    if(ev.target.closest('.acctwrap')) return;
+    ['#acctPop', '#stgPop', '#jmPop', '#verPop'].forEach(sel => {
+      const el = $(sel);
+      if(el && !el.hidden) el.hidden = true;
+    });
+  });
+
+  $('#hint').innerHTML = `选中条目后开始下载。文件落到 <code>${c.out_dir}</code>`;
+  if(!c.email) log(['⚠ 还没填 email：Unpaywall 会拒绝请求，OA 全文链接解析不出来。\n编辑 config.json 的 "email" 后重启本程序。']);
+  loadQuota(false);
+}
+
+// ===================== 中文标题 + 期刊指标（IF / 中科院分区）=====================
+let JM = { ok: false, tail: '', zh: true };
+const ZH_MAP = {};      // 英文标题 → 中文
+const JM_MAP = {};      // 刊名 → {if, jcr, cas, top}
+const JM_DONE = new Set();   // 已查过的刊（查不到也记下，避免重复请求）
+
+function refreshJmChip(){
+  const el = $('#jmChip');
+  if(!el) return;
+  el.innerHTML = `<span class="dot ${JM.ok ? 'ok' : 'bad'}"></span> ${JM.ok ? 'IF · 分区' : '期刊指标'}`;
+  el.title = JM.ok ? `已配置 easyScholar（…${JM.tail}）` : '未配置 easyScholar 密钥，点这里设置';
+}
+
+function renderJmPop(){
+  const pop = $('#jmPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="ap-title">影响因子 · 中科院分区 · JCR 分区</div>
+    <div class="ap-add">
+      <div class="ap-row">
+        <input type="password" class="jmkey" id="jmKey"
+               placeholder="${JM.ok ? '已配置（…' + JM.tail + '），重填可替换' : '粘贴 easyScholar SecretKey'}">
+        <button id="jmSave" style="padding:6px 12px">保存</button>
+      </div>
+      <div class="ap-note" id="jmMsg" style="border:0;margin:0;padding:0"></div>
+    </div>
+    <label class="fmt-sw" style="margin-top:9px">
+      <input type="checkbox" id="jmZh" ${JM.zh ? 'checked' : ''}> 标题下面显示中文译文（X-MOL 风格）
+    </label>
+    <div class="ap-note">
+      密钥免费：<a href="#" id="jmLink">easyscholar.cc</a> → 注册登录 → 右上角用户名 → 开放接口 → 复制 SecretKey。<br>
+      不填也能检索下载，只是 IF / 分区两列显示「—」。<br>
+      译文来自 MyMemory 免费接口，每天有字符上限，超了当天就不再翻（第二天自动续，已翻过的走缓存）。
+    </div>`;
+  $('#jmSave').onclick = saveJm;
+  $('#jmZh').onchange = async ev => {
+    JM.zh = ev.target.checked;
+    await jpost('/api/easyscholar', {action: 'toggle_zh', on: JM.zh});
+    if(!JM.zh){
+      document.querySelectorAll('.zh.on').forEach(el => { el.classList.remove('on'); });
+    } else {
+      zhRepaint('#tblBox', rows);   // 先把已有译文贴回来，再补没翻过的
+      if(rows.length) zhStart('#tblBox', rows);
+    }
+  };
+  $('#jmLink').onclick = ev => { ev.preventDefault(); openUrl('https://www.easyscholar.cc/'); };
+  $('#jmKey').addEventListener('keydown', ev => { if(ev.key === 'Enter') saveJm(); });
+}
+
+async function saveJm(){
+  const key = ($('#jmKey').value || '').trim();
+  const msg = $('#jmMsg');
+  if(!key){ if(msg) msg.innerHTML = '<span class="ap-warn">先把密钥粘进来</span>'; return; }
+  const btn = $('#jmSave');
+  btn.disabled = true; btn.textContent = '验证中…';
+  if(msg) msg.textContent = '';
+  let d;
+  try{ d = await jpost('/api/easyscholar', {key}); }
+  catch(e){ d = {error: String(e)}; }
+  btn.disabled = false; btn.textContent = '保存';
+  if(d.error){
+    if(msg) msg.innerHTML = '<span class="ap-warn">' + esc(d.error) + '</span>';
+    return;
+  }
+  JM.ok = true;
+  JM.tail = key.slice(-4);
+  refreshJmChip();
+  const p = (d.test && d.test.parsed) || {};
+  let line = `✓ 已保存。试查 ${esc((d.test && d.test.sample) || '')}：`
+           + `IF ${esc(p['if'] || '—')} · ${esc(p.cas_raw || '无分区')}`;
+  if(!p['if'] && !p.cas && d.test && d.test.fields && d.test.fields.length){
+    line += `<br><span style="color:#a5651a">接口返回的字段名是：${esc(d.test.fields.slice(0, 10).join('、'))}`
+          + `，没对上 IF / 分区，把这段发我看看</span>`;
+  }
+  if(msg) msg.innerHTML = line;
+  const inp = $('#jmKey');
+  if(inp) inp.placeholder = `已配置（…${JM.tail}），重填可替换`;
+  log(['easyScholar 密钥已保存：IF / 中科院分区 / JCR 分区可以用了']);
+  if(rows.length) rankStart('#tblBox', rows);
+}
+
+// ---- 文献类型小标 ----
+// 综述单独高亮；其他非研究论文的类型（学位论文 / 预印本…）用灰标；
+// 研究论文里「标题像综述」的给一个浅提示 —— OpenAlex 把不少综述标成 article，
+// 这里只提醒、不过滤，避免把真研究论文误杀。
+function typePill(r){
+  const t = (r.work_type || '').toLowerCase();
+  if(t === 'review') return '<span class="pill rev" title="OpenAlex 标注为综述">综述</span>';
+  if(t && t !== 'article')
+    return `<span class="pill mild" title="OpenAlex 标注的文献类型：${esc(t)}">${esc(r.type_label || t)}</span>`;
+  if(r.maybe_review)
+    return '<span class="pill mild" title="标题里有 review / survey / overview 这类词，但 OpenAlex 把它标成了研究论文，引用前先确认一下">疑似综述</span>';
+  return '';
+}
+
+// 引文扩散结果里「被几篇种子同时连上」的小标 —— 数字越大越可能是你要的那篇
+function seedPill(r){
+  const n = r.seed_hits || 0;
+  if(n < 2) return '';
+  const tip = `这篇同时出现在 ${n} 篇种子的引文里，通常比只连上一处的更相关`;
+  return `<span class="pill seed" title="${tip}">共现 ${n}</span>`;
+}
+
+// PubMed 的 MeSH 主题词：一眼看出这篇讲的是不是你要的方向，不用展开摘要
+function meshRow(r){
+  const m = (r.mesh || []).slice(0, 6);
+  if(!m.length) return '';
+  return `<div class="mesh" title="PubMed 的 MeSH 主题词">`
+       + m.map(x => `<span>${esc(x)}</span>`).join('') + `</div>`;
+}
+
+// 导出用的纯文字类型 —— **只写确定的那种**。
+// 「疑似综述」是程序按标题猜的，写进 Excel 会让整列没法按类型筛/排，所以只留在界面。
+function typeText(r){
+  const t = (r.work_type || '').toLowerCase();
+  if(!t) return '';
+  return r.type_label || t;
+}
+
+// ---- 中文标题 ----
+function zhCell(r){
+  const zh = ZH_MAP[r.title];
+  if(zh) return `<div class="zh on">${esc(zh)}</div>`;
+  return `<div class="zh" data-i="${r.i}"></div>`;
+}
+
+function zhRepaint(root, list){
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  list.forEach(r => {
+    const zh = ZH_MAP[r.title];
+    if(!zh) return;
+    const cell = box.querySelector('.zh[data-i="' + r.i + '"]');
+    if(cell){ cell.textContent = zh; cell.classList.add('on'); }
+  });
+}
+
+// ---- 摘要 / DOI 链接（主界面和「打开全部」共用）----
+function doiLink(r){
+  if(!r.doi) return ' · <span class="dim">无 DOI</span>';
+  return ` · <a href="#" class="doilink" data-doi="${esc(r.doi)}" title="用浏览器打开 doi.org">${esc(r.doi)} ↗</a>`;
+}
+
+function absBox(r){
+  if(!r.abstract) return '';
+  return `<details class="absbox" data-i="${r.i}" data-doi="${esc(r.doi||'')}">`
+       + `<summary>摘要</summary>`
+       + `<div class="absen">${esc(r.abstract)}</div>`
+       + `<div class="absbar"><button type="button" class="abstr">翻译成中文</button>`
+       + `<span class="abstip">机器翻译 · 会占用 MyMemory 每日免费额度</span></div>`
+       + `<div class="abszh" hidden></div></details>`;
+}
+
+const ABS_ZH = {};
+
+function showAbsZh(d, text){
+  const out = d.querySelector('.abszh');
+  const bar = d.querySelector('.absbar');
+  if(!out) return;
+  out.textContent = text; out.hidden = false; out.dataset.done = '1';
+  if(bar) bar.hidden = true;          // 翻完了，把按钮收起来
+}
+
+// 只在「点了按钮」时调用 —— 不点就一个请求都不发
+async function loadAbsZh(d){
+  const out = d.querySelector('.abszh');
+  const btn = d.querySelector('.abstr');
+  if(!out || out.dataset.done) return;
+  const key = d.dataset.doi || ('i' + d.dataset.i);
+  if(ABS_ZH[key]){ showAbsZh(d, ABS_ZH[key]); return; }
+  const enEl = d.querySelector('.absen');
+  const en = enEl ? enEl.textContent : '';
+  if(!en.trim()) return;
+  if(btn){ btn.disabled = true; btn.textContent = '翻译中…'; }
+  out.hidden = false; out.textContent = '翻译中…（首次几秒，翻过就存下来）';
+  let r;
+  try{ r = await jpost('/api/zh_abs', {text: en}); }
+  catch(e){
+    out.textContent = '（翻译失败：' + e + '）';
+    if(btn){ btn.disabled = false; btn.textContent = '重试'; }
+    return;
+  }
+  if(r.zh){
+    ABS_ZH[key] = r.zh;
+    showAbsZh(d, r.zh + (r.note ? '\n\n（' + r.note + '）' : ''));
+  } else {
+    out.textContent = '（没翻出来：' + (r.note || '未知原因') + '）';
+    if(btn){ btn.disabled = false; btn.textContent = '重试'; }
+  }
+}
+
+function bindAbsLinks(sel){
+  const box = $(sel);
+  if(!box) return;
+  box.querySelectorAll('a.doilink').forEach(a => {
+    a.onclick = ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      openUrl('https://doi.org/' + a.dataset.doi);
+    };
+  });
+  box.querySelectorAll('details.absbox').forEach(d => {
+    if(d.dataset.bound) return;
+    d.dataset.bound = '1';
+    d.addEventListener('toggle', () => {
+      if(!d.open) return;
+      const key = d.dataset.doi || ('i' + d.dataset.i);
+      if(ABS_ZH[key]) showAbsZh(d, ABS_ZH[key]);   // 只是显示以前翻过的，不发请求
+    });
+    const btn = d.querySelector('.abstr');
+    if(btn) btn.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); loadAbsZh(d); };
+  });
+}
+
+async function zhStart(root, list, gen){
+  if(!JM.zh) return;
+  const my = (gen === undefined) ? RENDER_SEQ : gen;
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  const titles = [...new Set(list.map(r => r.title).filter(t => t && !ZH_MAP[t]))];
+  if(!titles.length) return;
+  for(let i = 0; i < titles.length; i += 12){
+    if(my !== RENDER_SEQ) return;        // 结果已经换一批了，这批回包丢弃
+    let d;
+    try{ d = await jpost('/api/zh', {titles: titles.slice(i, i + 12)}); }
+    catch(e){ return; }
+    if(my !== RENDER_SEQ) return;
+    const m = d.map || {};
+    let hit = 0;
+    list.forEach(r => {
+      const zh = m[r.title];
+      if(!zh) return;
+      ZH_MAP[r.title] = zh;
+      const cell = box.querySelector('.zh[data-i="' + r.i + '"]');
+      if(cell){ cell.textContent = zh; cell.classList.add('on'); }
+      hit++;
+    });
+    if(d.note) log(['翻译：' + d.note]);
+    if(!hit && d.note) return;
+  }
+}
+
+// ---- IF / 分区 ----
+function ifCell(r){
+  if(!JM.ok) return '<span class="dim" title="未配置 easyScholar 密钥">—</span>';
+  if(!r.journal) return '<span class="dim">—</span>';
+  const info = JM_MAP[r.journal];
+  if(info) return info['if'] ? esc(info['if']) : '<span class="dim" title="easyScholar 没收录该刊的 IF">—</span>';
+  return JM_DONE.has(r.journal) ? '<span class="dim" title="easyScholar 没收录该刊的 IF">—</span>' : '<span class="dim">·</span>';
+}
+
+function casCell(r){
+  if(!JM.ok) return '<span class="dim" title="未配置 easyScholar 密钥">—</span>';
+  if(!r.journal) return '<span class="dim">—</span>';
+  const info = JM_MAP[r.journal];
+  if(!info) return JM_DONE.has(r.journal) ? '<span class="dim">—</span>' : '<span class="dim">·</span>';
+  if(!info.cas) return '<span class="dim">—</span>';
+  const z = info.cas.replace('区', '');
+  return `<span class="cas z${z}${info.top ? ' top' : ''}" title="${esc(info.cas_raw || '')}">`
+       + `${esc(info.cas)}${info.top ? ' Top' : ''}</span>`;
+}
+
+function applyRank(box, i, info){
+  const a = box.querySelector('#if-' + i), b = box.querySelector('#cas-' + i);
+  if(a) a.innerHTML = (info && info['if']) ? esc(info['if']) : '<span class="dim">—</span>';
+  if(b){
+    if(info && info.cas){
+      const z = info.cas.replace('区', '');
+      b.innerHTML = `<span class="cas z${z}${info.top ? ' top' : ''}" title="${esc(info.cas_raw || '')}">`
+                  + `${esc(info.cas)}${info.top ? ' Top' : ''}</span>`;
+    } else {
+      b.innerHTML = '<span class="dim">—</span>';
+    }
+  }
+}
+
+async function rankStart(root, list, gen){
+  if(!JM.ok) return;
+  const my = (gen === undefined) ? RENDER_SEQ : gen;
+  const box = typeof root === 'string' ? $(root) : root;
+  if(!box) return;
+  const names = [...new Set(list.map(r => r.journal).filter(n => n && !JM_DONE.has(n)))];
+  if(!names.length) return;
+  for(let i = 0; i < names.length; i += 8){
+    if(my !== RENDER_SEQ) return;        // 同上：换了一批就别再往新表里写
+    const chunk = names.slice(i, i + 8);
+    let d;
+    try{ d = await jpost('/api/rank', {names: chunk}); }
+    catch(e){ return; }
+    const m = d.map || {};
+    chunk.forEach(n => {
+      if(m[n]){ JM_MAP[n] = m[n]; JM_DONE.add(n); }
+      else if(!d.note){ JM_DONE.add(n); }     // 确实查不到（不是被限流）
+    });
+    list.forEach(r => {
+      if(chunk.includes(r.journal)) applyRank(box, r.i, JM_MAP[r.journal] || null);
+    });
+    if(d.note){
+      // 被限流 / 密钥失效：剩下的别再挂着「·」，统一落成「—」
+      log(['期刊指标：' + d.note]);
+      chunk.forEach(n => { if(!JM_MAP[n]) JM_DONE.add(n); });
+      list.forEach(r => {
+        if(chunk.includes(r.journal)) applyRank(box, r.i, JM_MAP[r.journal] || null);
+      });
+      return;
+    }
+  }
+}
+
+function render(list){
+  rows = list; sel.clear();
+  RENDER_SEQ++;
+  const exp = $('#exPop'); if(exp) exp.hidden = true;   // 换一批结果，旧的导出弹层要收起来
+  if(!list.length){
+    $('#tblBox').innerHTML = '<div class="empty">没有结果</div>';
+    upd();                                            // 不清按钮的话还挂着上一次的「下载选中 (3)」
+    return;
+  }
+  const h = `<table><thead><tr>
+      <th style="width:34px"><input type="checkbox" id="all"></th>
+      <th>标题 / 期刊</th><th style="width:62px">年份</th>
+      <th style="width:52px">IF</th><th style="width:76px">中科院分区</th>
+      <th style="width:56px">引用</th><th style="width:56px">OA</th>
+    </tr></thead><tbody>` +
+    list.map(r => `<tr data-i="${r.i}">
+      <td><input type="checkbox" data-i="${r.i}"></td>
+      <td><div class="t">${esc(r.title)}</div>${zhCell(r)}<div class="j">${typePill(r)}${seedPill(r)}${esc(r.journal||'—')}${doiLink(r)}</div>${absBox(r)}${meshRow(r)}</td>
+      <td>${r.year||''}</td>
+      <td class="ifv" id="if-${r.i}">${ifCell(r)}</td>
+      <td id="cas-${r.i}">${casCell(r)}</td>
+      <td class="num-r">${r.cited_by||0}</td>
+      <td>${r.is_oa?'<span class="pill oa">OA</span>':'<span class="pill sub">订阅</span>'}</td>
+    </tr>`).join('') + '</tbody></table>';
+  $('#tblBox').innerHTML = h;
+
+  $('#all').onchange = e => {
+    // 只找结果表里的复选框：文献库 / 库内搜索的表格也有 tbody，选到它们会炸
+    document.querySelectorAll('#tblBox tbody input[type=checkbox]').forEach(c => {
+      c.checked = e.target.checked;
+      const i = +c.dataset.i;
+      e.target.checked ? sel.add(i) : sel.delete(i);
+      c.closest('tr').classList.toggle('sel', e.target.checked);
+    });
+    upd();
+  };
+  document.querySelectorAll('#tblBox tbody tr').forEach(tr => {
+    const c = tr.querySelector('input[type=checkbox]');
+    if(!c) return;                       // 没复选框的行（不该出现）直接跳过，别抛异常
+    tr.onclick = ev => {
+      if(ev.target.closest('input, a, details, summary')) return;
+      c.checked = !c.checked;
+      c.dispatchEvent(new Event('change'));
+    };
+    c.onchange = () => {
+      const i = +c.dataset.i;
+      c.checked ? sel.add(i) : sel.delete(i);
+      tr.classList.toggle('sel', c.checked);
+      upd();
+    };
+  });
+  upd();
+  bindAbsLinks('#tblBox');
+  zhStart('#tblBox', rows, RENDER_SEQ);
+  rankStart('#tblBox', rows, RENDER_SEQ);
+}
+
+// 每次 render 换一批结果就 +1；异步回包（翻译 / IF）发现代号变了就直接丢掉，
+// 不然上一轮的译文会按行号写进新表格，张冠李戴还查不出来
+let RENDER_SEQ = 0;
+
+function upd(){
+  $('#btnFetch').disabled = sel.size === 0;
+  $('#btnFetch').textContent = sel.size ? `下载选中 (${sel.size})` : '下载选中';
+  const be = $('#btnExport');
+  if(be){
+    be.disabled = !rows.length;
+    be.textContent = rows.length ? `导出表格 (${rows.length})` : '导出表格';
+  }
+  const bc = $('#btnCites');
+  if(bc){
+    bc.disabled = sel.size === 0;
+    bc.textContent = sel.size ? `引文扩散 (${sel.size})` : '引文扩散';
+  }
+}
+
+// ===================== 引文扩散（顺藤摸瓜找文献）=====================
+let CITEDIR = 'both';
+const MAX_SEEDS = 6;
+
+function renderCitePop(){
+  const pop = $('#citePop');
+  if(!pop) return;
+  const picked = rows.filter(r => sel.has(r.i));
+  const noDoi = picked.filter(r => !r.doi).length;
+  const over = picked.length > MAX_SEEDS;
+  pop.innerHTML = `
+    <div class="ap-title">引文扩散 · 拿勾选的文献当种子</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.75">
+      已勾 <b>${picked.length}</b> 篇${noDoi ? `（其中 ${noDoi} 篇没 DOI，会被跳过）` : ''}
+      ${over ? `<br><span style="color:var(--warn)">一次最多取前 ${MAX_SEEDS} 篇当种子</span>` : ''}<br>
+      走 Semantic Scholar 的引文数据，<b>不用再想关键词</b>。
+    </div>
+    <div class="exrow">
+      <span class="exchip ${CITEDIR==='both'?'on':''}" data-dir="both">双向</span>
+      <span class="exchip ${CITEDIR==='citations'?'on':''}" data-dir="citations">谁引用了它</span>
+      <span class="exchip ${CITEDIR==='references'?'on':''}" data-dir="references">它引用了谁</span>
+    </div>
+    <div class="exmsg" style="line-height:1.7">
+      · <b>谁引用了它</b>：后续工作，最容易挖到新的实验论文（数据最全）<br>
+      · <b>它引用了谁</b>：前人的基础，从综述出发能把领域铺开<br>
+      <span style="color:var(--ink3)">　但这方向只有部分出版社有数据：MDPI 这类全 OA 的通常有，
+      Elsevier / Wiley 多半是空的（出版社不开放参考文献），拿不到属正常</span><br>
+      · 被多篇种子同时连上的会挂「共现 N」，优先看
+    </div>
+    <div class="exbar"><button id="citeGo">开始扩散</button>
+      <button class="sm" id="citeCancel" style="background:#fff">取消</button></div>`;
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => { if(c.dataset.dir){ CITEDIR = c.dataset.dir; renderCitePop(); } };
+  });
+  const go = $('#citeGo'), cc = $('#citeCancel');
+  if(go) go.onclick = doCites;
+  if(cc) cc.onclick = () => { pop.hidden = true; };
+}
+
+let CITEBUSY = false;
+
+async function doCites(){
+  const pop = $('#citePop'), go = $('#citeGo');
+  const idx = [...sel];
+  if(!idx.length || CITEBUSY) return;
+  CITEBUSY = true;
+  if(go){ go.disabled = true; go.textContent = '扩散中…'; }
+  // 立刻收起弹层：不然等待期间点方向 chip 会把弹层整块重绘，
+  // 「开始扩散」按钮重新变可点 → 能并发发出第二个请求，还会把「返回」的目标踩乱
+  if(pop) pop.hidden = true;
+  log(['引文扩散：正在查 Semantic Scholar（十几秒，别关窗口）…']);
+  try{
+    const out = await jpost('/api/cites', {indices: idx, direction: CITEDIR, limit: 200});
+    if(out.error){
+      alert(out.error);
+      log(['✗ 引文扩散失败：' + String(out.error).split('\n')[0]]);
+      renderCitePop();                 // 重新弹出来，方便换个方向重试
+      const pp = $('#citePop'); if(pp) pp.hidden = false;
+      return;
+    }
+    render(out.results);
+    const b = $('#btnBack'); if(b) b.hidden = false;
+    const st = out.stats || {};
+    const dirTxt = {both:'双向', citations:'谁引用了它', references:'它引用了谁'}[CITEDIR] || '';
+    log([`引文扩散（${dirTxt}）：种子 ${st.seeds || 0} 篇 → 去重后 ${out.n} 条`
+         + (st.citations ? `　·　正向 ${st.citations}` : '')
+         + (st.references ? `　·　反向 ${st.references}` : '')
+         + (st.dup ? `　·　合并重复 ${st.dup}` : ''),
+         (st.ref_empty_seeds && st.ref_empty_seeds >= (st.seeds || 1) && CITEDIR !== 'citations'
+           ? '⚠ 这几个种子的「它引用了谁」Semantic Scholar 没收录（Elsevier / Wiley 常见），'
+             + '换 MDPI 这类 OA 文献当种子通常就有'
+           : ''),
+         '挂「共现 N」的是被多篇种子同时连上的，优先看；勾选后照样能下载和导出']
+         .filter(Boolean));
+  }catch(e){
+    alert('扩散失败：' + e);
+    renderCitePop();
+    const pp = $('#citePop'); if(pp) pp.hidden = false;
+  }finally{
+    CITEBUSY = false;
+  }
+}
+
+$('#btnCites').onclick = () => {
+  const pop = $('#citePop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(!sel.size){ alert('先勾几篇当种子（有 DOI 的才管用）'); return; }
+  renderCitePop();
+  pop.hidden = false;
+};
+
+$('#btnBack').onclick = async () => {
+  const out = await jpost('/api/back', {});
+  if(out.error){ alert(out.error); return; }
+  render(out.results);
+  const b = $('#btnBack'); if(b) b.hidden = true;
+  log(['已返回关键词检索结果']);
+};
+
+// ===================== 导出表格（中文标题 + IF + 分区）=====================
+let EX = { scope: 'all', fmt: 'xlsx', busy: false, last: '' };
+
+function exList(){
+  return EX.scope === 'sel' ? rows.filter(r => sel.has(r.i)) : rows;
+}
+
+function exPayload(list){
+  return list.map(r => {
+    const m = JM_MAP[r.journal] || {};
+    return {
+      zh_title: ZH_MAP[r.title] || '',
+      title: r.title || '',
+      journal: r.journal || '',
+      dtype: typeText(r),
+      'if': m['if'] || '',
+      cas: m.cas ? (m.cas + (m.top ? ' Top' : '')) : '',
+      jcr: m.jcr || '',
+      year: r.year || '',
+      cited_by: r.cited_by || 0,
+      oa: r.is_oa ? 'OA' : '订阅',
+      doi: r.doi || '',
+      first_author: r.first_author || '',
+      abstract: r.abstract || ''
+    };
+  });
+}
+
+function renderExPop(){
+  const pop = $('#exPop');
+  if(!pop) return;
+  if(!rows.length){ pop.hidden = true; return; }
+  const nAll = rows.length, nSel = sel.size, list = exList();
+  const nZh = list.filter(r => !ZH_MAP[r.title]).length;
+  const nJm = [...new Set(list.map(r => r.journal).filter(n => n && !JM_DONE.has(n)))].length;
+  const miss = [];
+  if(!JM.zh) miss.push('标题中译是关着的，中文标题列会空着');
+  else if(nZh) miss.push(`${nZh} 条标题还没译`);
+  if(!JM.ok) miss.push('没配 easyScholar，IF / 分区列会空着');
+  else if(nJm) miss.push(`${nJm} 个刊名还没查 IF`);
+  const willFetch = (JM.zh && nZh) || (JM.ok && nJm);
+  pop.innerHTML = `
+    <div class="ap-title">导出表格 · 带中文标题 / IF / 中科院分区</div>
+    <div class="exrow">
+      <span class="exchip ${EX.scope === 'all' ? 'on' : ''}" data-scope="all">全部 ${nAll} 条</span>
+      <span class="exchip ${EX.scope === 'sel' ? 'on' : ''} ${nSel ? '' : 'off'}" data-scope="sel">已勾选 ${nSel} 条</span>
+    </div>
+    <div class="exrow">
+      <span class="exchip ${EX.fmt === 'xlsx' ? 'on' : ''}" data-fmt="xlsx">Excel (.xlsx)</span>
+      <span class="exchip ${EX.fmt === 'csv' ? 'on' : ''}" data-fmt="csv">CSV (.csv)</span>
+    </div>
+    <div class="exmsg">${miss.length
+      ? (willFetch ? '导出前会先补齐：' + miss.join('、') + '（首次几十秒，之后走本地缓存）。'
+                   : '注意：' + miss.join('；') + '。')
+      : '标题译文和期刊指标都在本地缓存里，秒出。'}<br>
+      文件落到程序目录的 <code>导出\\</code>，Excel 里 DOI 可直接点。</div>
+    <div class="exbar">
+      <button id="exGo"${EX.busy ? ' disabled' : ''}>${EX.busy ? '导出中…' : `开始导出（${list.length} 条）`}</button>
+      <button class="sm" id="exCancel" style="background:#fff">取消</button>
+    </div>`;
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => {
+      if(c.classList.contains('off')) return;
+      if(c.dataset.scope) EX.scope = c.dataset.scope;
+      if(c.dataset.fmt) EX.fmt = c.dataset.fmt;
+      renderExPop();
+    };
+  });
+  const cancel = $('#exCancel'), go = $('#exGo');
+  if(cancel) cancel.onclick = () => { pop.hidden = true; };
+  if(go) go.onclick = doExport;
+}
+
+async function ensureEnrich(list){
+  // 先补齐还没翻译 / 还没查指标的，两个函数都自带磁盘缓存与限流自我保护
+  try{ if(JM.zh) await zhStart('#tblBox', list); }catch(e){}
+  try{ if(JM.ok) await rankStart('#tblBox', list); }catch(e){}
+}
+
+async function doExport(){
+  if(EX.busy) return;
+  const list = exList();
+  if(!list.length){ alert('没有可导出的条目'); return; }
+  EX.busy = true; renderExPop();
+  const go = $('#exGo');
+  try{
+    if(go) go.textContent = '正在补齐标题 / 指标…';
+    await ensureEnrich(list);
+    if(go) go.textContent = '正在写文件…';
+    const out = await jpost('/api/export', {
+      rows: exPayload(list), fmt: EX.fmt, tag: ($('#q').value || '').trim()
+    });
+    EX.busy = false;
+    if(out.error){ alert(out.error); renderExPop(); return; }
+    EX.last = out.path;
+    $('#exPop').hidden = true;
+    const nm = out.path.split(/[\\/]/).pop();
+    $('#hint').innerHTML = `已导出 <b>${out.n}</b> 条 → `
+      + `<a href="#" id="exOpen">${esc(nm)}</a>（${out.fmt.toUpperCase()}，点开所在文件夹）`;
+    const a = $('#exOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: EX.last}); };
+    const lg = $('#logs');
+    if(lg) { lg.textContent = (lg.textContent || '') + '\n已导出 ' + out.n + ' 条 → ' + out.path; lg.scrollTop = lg.scrollHeight; }
+  }catch(e){
+    EX.busy = false; renderExPop();
+    alert('导出失败：' + e);
+  }
+}
+
+$('#btnExport').onclick = () => {
+  const pop = $('#exPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(EX.scope === 'sel' && !sel.size) EX.scope = 'all';
+  if(!rows.length) return;
+  renderExPop();
+  pop.hidden = false;
+};
+
+document.addEventListener('click', ev => {
+  if(ev.target.closest('.expwrap')) return;
+  ['#exPop', '#notesPop', '#citePop', '#orgPop'].forEach(sel => {
+    const p = $(sel);
+    if(p && !p.hidden) p.hidden = true;
+  });
+});
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function toggleHelp(force){
+  const el = $('#syntax');
+  el.hidden = (force === undefined) ? !el.hidden : !force;
+}
+
+$('#btnHelp').onclick = () => toggleHelp();
+
+document.querySelectorAll('.eg').forEach(e => {
+  e.onclick = () => {
+    $('#q').value = e.dataset.q;
+    $('#q').focus();
+    // 只填入不执行——留时间改条件，也省一次请求
+    $('#q').setSelectionRange($('#q').value.length, $('#q').value.length);
+    const tip = $('#q').dataset.tip;
+    if(!tip){
+      $('#q').dataset.tip = '1';
+      log(['已填入检索框，改好后按回车或点「检索」']);
+      setTimeout(() => { delete $('#q').dataset.tip; }, 4000);
+    }
+  };
+});
+
+$('#q').addEventListener('keydown', ev => {
+  if(ev.key === 'Enter'){ ev.preventDefault(); $('#btnSearch').click(); }
+});
+
+$('#btnSearch').onclick = async () => {
+  const q = $('#q').value.trim();
+  if(!q){ $('#q').focus(); return; }
+  // 检索条件是「点下去那一刻」的，别在 await 之后再读控件——
+  // 检索要等好几秒，这期间用户切了「类型」下拉，日志就会说谎
+  const dtSel0 = $('#dtype');
+  const dtWant = dtSel0 ? dtSel0.value : 'article';
+  const dtWantLabel = (dtSel0 && dtSel0.selectedIndex >= 0)
+    ? dtSel0.options[dtSel0.selectedIndex].text : dtWant;
+  $('#btnSearch').disabled = true;
+  $('#btnSearch').textContent = '检索中…';
+  const bk = $('#btnBack'); if(bk) bk.hidden = true;      // 新检索，旧的「返回」目标作废
+  $('#tblBox').innerHTML = '<div class="empty">检索中…</div>';
+  try{
+    const out = await jpost('/api/search', {
+      query: q, limit: +$('#lim').value || 100,
+      year_from: $('#y1').value ? +$('#y1').value : null,
+      year_to:   $('#y2').value ? +$('#y2').value : null,
+      oa_only: $('#oa').checked,
+      field: $('#field').value,
+      op: $('#op').value,
+      sort: $('#sort').value,
+      doc_type: dtWant
+    });
+    if(out.error){
+      let tip = '';
+      if (out.query_error)
+        // 两类 QueryError 要分开说：语法写错 vs 这篇被筛选项挡掉了。
+        // 一律提示「检查括号」会让改类型/年份的人照着错的方向改。
+        tip = out.err_kind === 'filtered'
+          ? '<div class="errtip">这不是检索式写错，是这篇被上面的筛选项挡掉了。'
+            + '按提示改「类型 / 起始年 / 只看 OA」再试。</div>'
+          : '<div class="errtip">检查括号是否配对；AND / OR / NOT 前后要留空格。点右侧「语法」看示例。</div>';
+      else if (out.quota)
+        tip = '<div class="errtip">这不是你操作的问题，是 OpenAlex 侧额度用完了。'
+            + '申请免费 key 后填进 config.json 的 openalex_api_key，重启程序即可。</div>';
+      $('#tblBox').innerHTML = `<div class="errbox" style="margin:16px">${esc(out.error)}${tip}</div>`;
+      log(['✗ 检索失败：' + out.error.split('\n')[0]]);
+      return;
+    }
+    render(out.results);
+
+    const lines = [];
+    if (out.used_query && out.used_query !== out.original)
+      lines.push(`中文已转为：${out.used_query}`);
+    if (out.leftover && out.leftover.length)
+      lines.push(`⚠ 未翻译片段：${out.leftover.join(" / ")}`);
+
+    const p = out.parse || {};
+    if (p.identifier) {
+      let line = `直接定位：${p.expr}　·　没走检索`;
+      if (p.via === 'crossref') line += '（OpenAlex 没收录，元数据取自 Crossref）';
+      lines.push(line);
+    } else if (p.expr) {
+      let line = `解析：${p.expr}　·　字段 ${p.field_label}`;
+      if (p.phrase) line += '　·　按整句短语匹配（粘标题时自动）';
+      if (p.n_groups > 1) line += `　·　拆成 ${p.n_groups} 次查询后合并`;
+      if (p.has_neg) line += '　·　含排除项';
+      if (p.has_wild) line += '　·　已用 exact 字段';
+      lines.push(line);
+    }
+    if (p.sort && p.sort !== 'relevance'){
+      let line = `排序：${p.sort_label}`;
+      if (p.field === 'all')
+        line += '　⚠ 按被引/年份排序不再看主题相关性，「任意字段」是全文匹配、噪声大，'
+             +  '换成「标题+摘要」会更聚焦';
+      lines.push(line);
+    }
+    const dtLabel = dtWantLabel;
+    if (dtLabel && dtWant !== 'article')
+      lines.push(`文献类型：${dtLabel}` + (dtWant === 'review'
+        ? '　⚠ OpenAlex 对综述标注不全，结果偏少时可切「研究论文 + 综述」再看' : ''));
+    const nSus = (out.results || []).filter(r => r.maybe_review).length;
+    if (nSus && dtWant !== 'review')
+      lines.push(`其中 ${nSus} 条标题像综述但被标成研究论文（界面挂「疑似综述」灰标，引用前确认一下）`);
+    const pms = out.pubmed || {};
+    const nFix = (out.results || []).filter(r => r.type_from === 'pubmed' && r.work_type === 'review').length;
+    if (nFix)
+      lines.push(`PubMed 校正：其中 ${nFix} 条其实是综述（OpenAlex 标成了研究论文），已改挂「综述」标`);
+    if (pms.updated)
+      lines.push(`PubMed 补充：${pms.updated} 条拿到文献类型 / MeSH 主题词` +
+                 (pms.skipped_no_doi ? `（${pms.skipped_no_doi} 条没 DOI，跳过）` : ''));
+    if (pms.skipped_over_limit)
+      lines.push(`（PubMed 只核对了前 200 条，后面 ${pms.skipped_over_limit} 条没查 —— `
+               + `全查要多等一分多钟，不值当；缩小检索范围再看就行）`);
+    $('#btnOpenAll').disabled = (out.n === 0);
+    const limWant = +$('#lim').value || 100;
+    lines.push(`OpenAlex 共命中 ${(out.total||0).toLocaleString()} 条，本次取回 ${out.n} 条`);
+    if (out.total > out.n) {
+      if (p.capped_no_key)
+        lines.push('⚠ 被 OpenAlex 的「没配 key 只能取前 200 条」挡住了：去 openalex.org/settings/api '
+                 + '免费申请一个 key，填进 config.json 的 openalex_api_key，就能一次取到 1000 条');
+      else if (out.n < limWant)
+        lines.push('（命中数不到你填的「条数」，这些就是全部了）');
+      else
+        lines.push(`（要更多就把左上「条数」调大，最多 1000；取太多前端渲染会变慢）`);
+    }
+    log(lines);
+  }catch(e){
+    $('#tblBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }finally{
+    $('#btnSearch').disabled = false;
+    $('#btnSearch').textContent = '检索';
+  }
+};
+
+$('#btnFetch').onclick = async () => {
+  const out = await jpost('/api/fetch', {indices: [...sel]});
+  if(out.error){ alert(out.error); return; }
+  $('#btnFetch').disabled = true;
+  $('#hint').textContent = '下载中，请勿关闭窗口。';
+  if(!polling) polling = setInterval(tick, 800);
+};
+
+async function tick(){
+  const p = await jget('/api/progress');
+  log(p.log);
+  const j = p.job;
+  if(!j) return;
+  const pct = j.total ? Math.round(j.done / j.total * 100) : 0;
+  $('#progBar').style.width = pct + '%';
+  $('#pDone').textContent = `${j.done} / ${j.total}`;
+  $('#pOk').textContent = j.ok;
+  $('#pMiss').textContent = j.miss;
+  if(!j.running){
+    clearInterval(polling); polling = null;
+    $('#hint').textContent = '已完成。未获取的见 文献库/_missing_for_library.csv，可交图书馆文献传递。';
+    upd(); $('#btnFetch').disabled = sel.size === 0;
+  }
+}
+
+$('#q').addEventListener('keydown', e => { if(e.key === 'Enter') $('#btnSearch').click(); });
+// ========== 文献库 ==========
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('.pane').forEach(p => { p.hidden = (p.id !== 'pane-' + t.dataset.pane); });
+    if (t.dataset.pane === 'lib') { loadLibrary(false); loadZotero().then(() => { if(LIBROWS.length) renderLib(); }); }
+    if (t.dataset.pane === 'find') loadKStatus();
+  };
+});
+
+let LIBROWS = [];
+
+function libDate(ts){
+  if(!ts) return '—';
+  const d = new Date(ts * 1000);
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function libView(){
+  const q = ($('#libQ').value || '').trim().toLowerCase();
+  const mode = $('#libSort').value;
+  const out = LIBROWS.filter(it => !q
+    || (it.name || '').toLowerCase().includes(q)
+    || (it.title || '').toLowerCase().includes(q)
+    || (it.doi || '').toLowerCase().includes(q)
+    || (it.folder || '').toLowerCase().includes(q));
+  if(mode === 'mtime') out.sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
+  else if(mode === 'size') out.sort((a, b) => (b.size_kb || 0) - (a.size_kb || 0));
+  else if(mode === 'doi') out.sort((a, b) => ((a.doi ? 1 : 0) - (b.doi ? 1 : 0))
+    || (a.name || '').localeCompare(b.name || ''));
+  else out.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  return out;
+}
+
+function renderLib(list){
+  if(list === undefined) list = LIBROWS;
+  if(!list.length){
+    $('#libBox').innerHTML = '<div class="empty">文献库里还没有文件<br><span style="font-size:12px">下载的文件（PDF / XML / XML 压缩）会自动存进来，也可以把 Zotero 的 PDF 拷进来</span></div>';
+    $('#btnLibExport').disabled = true;
+    return;
+  }
+  const view = libView();
+  $('#btnLibExport').disabled = view.length === 0;
+  const total = LIBROWS.length;
+  const head = view.length === total ? `${total} 条` : `筛出 ${view.length} / ${total} 条`;
+  $('#libBox').innerHTML = `<div class="libstat" style="padding:10px 12px 2px">${head}
+      · 点一行用资源管理器定位文件</div>
+    <table><thead><tr>
+      <th>文件</th><th style="width:196px">DOI</th>
+      <th style="width:72px">大小</th><th style="width:96px">修改时间</th>
+    </tr></thead><tbody>` +
+    view.map(it => `<tr class="librow" data-f="${esc(it.file)}">
+      <td><div class="t">${esc(it.name)}</div><div class="j">${esc(it.folder)}</div></td>
+      <td class="j" style="word-break:break-all">${it.doi ? esc(it.doi) : '—'}${it.doi && ZSET.has((it.doi||'').toLowerCase()) ? ' <span class="pill zot">Zotero</span>' : ''}</td>
+      <td class="num-r">${it.size_kb} KB</td>
+      <td class="num-r">${libDate(it.mtime)}</td>
+    </tr>`).join('') + '</tbody></table>';
+  document.querySelectorAll('#libBox tr.librow').forEach(tr => {
+    tr.onclick = () => jpost('/api/open', {path: tr.dataset.f});
+  });
+}
+
+async function loadLibrary(force){
+  $('#libBox').innerHTML = '<div class="empty">扫描中…（首次解析 PDF 会慢一些）</div>';
+  try{
+    const d = await jget('/api/library' + (force ? '?force=1' : ''));
+    if(d.error){ $('#libBox').innerHTML = `<div class="empty err">${esc(d.error)}</div>`; return; }
+    $('#libPath').textContent = d.library;
+    $('#libStat').textContent =
+      `${d.unique} 篇 · 扫描 ${d.total_files} 个文件 · 去重 ${d.duplicates} · 含 DOI ${d.with_doi}`
+      + (d.parsed_this_run ? ` · 本次新解析 ${d.parsed_this_run}` : '');
+    $('#libCnt').textContent = d.unique || '';
+    LIBROWS = d.items || [];
+    renderLib();
+  }catch(e){
+    $('#libBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+
+$('#btnScan').onclick = () => loadLibrary(true);
+
+// ---- 选目录 / 路径缩写（新手不用手打路径）----
+async function pickFolder(msg){
+  if(window.pywebview && pywebview.api && pywebview.api.pick_folder){
+    try{ const p = await pywebview.api.pick_folder(); if(p) return p; }catch(e){}
+  }
+  return (prompt(msg || '粘贴目录路径') || '').trim();
+}
+
+function shortPath(p){
+  const s = String(p || '');
+  const parts = s.split(/[\\/]/).filter(Boolean);
+  return parts.length > 2 ? '…\\' + parts.slice(-2).join('\\') : s;
+}
+
+// ===================== 整理手动下载的 PDF =====================
+let ORGDIR = '', ORGBUSY = false;
+
+function renderOrgPop(){
+  const pop = $('#orgPop');
+  if(!pop) return;
+  pop.innerHTML = `
+    <div class="ap-title">整理手动下载的 PDF</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.75">
+      在浏览器里手动下到「下载」文件夹的 PDF —— 按 DOI 认出来 → 改名成统一格式 → 挪进文献库。
+      <b>认不出的一个都不动</b>，只列出来给你看。先「预览」看清楚再确认。
+    </div>
+    <div class="exrow" style="gap:6px">
+      <input id="orgDir" value="${esc(ORGDIR)}" placeholder="下载文件夹路径"
+             style="flex:1;font-size:12px;padding:6px 8px">
+      <button class="sm" id="orgPick" style="background:#fff">选择</button>
+    </div>
+    <div class="exbar"><button id="orgPreview">预览（不动文件）</button>
+      <button class="sm" id="orgCancel" style="background:#fff">取消</button></div>
+    <div id="orgOut" class="exmsg" style="line-height:1.75;border-top:0;padding-top:0"></div>`;
+  const inp = $('#orgDir');
+  if(inp) inp.oninput = () => { ORGDIR = inp.value; };
+  const pick = $('#orgPick');
+  if(pick) pick.onclick = async () => {
+    const p2 = await pickFolder('选你浏览器默认下载到的文件夹');
+    if(!p2) return;
+    ORGDIR = p2;
+    renderOrgPop();
+  };
+  const pv = $('#orgPreview'); if(pv) pv.onclick = () => runOrganize(true);
+  const cc = $('#orgCancel'); if(cc) cc.onclick = () => { pop.hidden = true; };
+}
+
+function renderOrgResult(d, dry){
+  const out = $('#orgOut');
+  if(!out) return;
+  if(d.error){ out.innerHTML = `<span style="color:var(--bad)">${esc(d.error)}</span>`; return; }
+  if(!d.scanned){
+    out.innerHTML = `这个文件夹里没有 PDF（${esc(shortPath(d.dir || ORGDIR))}）。`
+      + `<br><span style="color:var(--ink3)">如果下载到了别处，点上面「选择」换一个目录。</span>`;
+    return;
+  }
+  const rows = (d.plan || []).map(x =>
+    `<div style="margin:2px 0"><span style="color:var(--ink3)">${esc(x.from)}</span>`
+    + ` → <b>${esc(x.to)}</b> <span style="color:var(--ink3);font-size:11px">${esc(x.act)}</span></div>`).join('');
+  const unknown = (d.unknown_files || []).length
+    ? `<div style="margin-top:6px;color:var(--ink3)">读不出 DOI、没动的 ${d.unknown} 个：`
+      + d.unknown_files.map(x => esc(x)).join('、') + `</div>` : '';
+  const unmatched = (d.unmatched_files || []).length
+    ? `<div style="margin-top:6px;color:#8a5a1e">有 DOI 但台账里没有、没动的 ${d.unmatched} 个：`
+      + d.unmatched_files.map(x => esc(x)).join('、')
+      + `<br><span style="color:var(--ink3)">这些先在上面「检索」一次（把记录补进台账），再来整理就能认出来。</span></div>`
+    : '';
+  const extra = (d.limited && d.total)
+    ? `<br><span style="color:#8a5a1e">这个文件夹一共有 ${d.total} 个 PDF，本轮只看了最新的 ${d.scanned} 个`
+      + `——先清掉一批、或调小范围再点一次</span>` : '';
+  out.innerHTML = `<b>扫了 ${d.scanned} 个 PDF</b>：认出 ${d.matched} 个`
+    + (dry ? `，将移动 ${d.matched - d.skipped} 个` : `，已移动 ${d.moved} 个`)
+    + (d.skipped ? `，${d.skipped} 个库里已有` : '')
+    + (d.failed ? `，<span style="color:var(--bad)">${d.failed} 个失败</span>` : '')
+    + (!dry ? `<br><span style="color:var(--ok)">已归位到 ${esc(shortPath(d.library))}</span>` : '')
+    + extra + `<div style="margin-top:6px">${rows}</div>${unmatched}${unknown}`
+    + (dry && d.matched > d.skipped
+       ? `<div class="exbar" style="margin-top:8px"><button id="orgConfirm">确认整理（移动 ${d.matched - d.skipped} 个）</button></div>`
+       : '');
+  const cf = $('#orgConfirm');
+  if(cf) cf.onclick = () => runOrganize(false);
+}
+
+async function runOrganize(dry){
+  if(ORGBUSY) return;
+  ORGBUSY = true;
+  const btn = dry ? $('#orgPreview') : $('#orgConfirm');
+  const old = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = dry ? '扫描中…' : '整理中…'; }
+  const out = $('#orgOut'); if(out) out.innerHTML = '正在逐个读 PDF 找 DOI…（几十个文件要十几秒）';
+  try{
+    const d = await jpost('/api/organize', {dir: ORGDIR, dry_run: dry, limit: 200});
+    renderOrgResult(d, dry);
+    if(!dry && d.moved){
+      log([`整理下载：${d.moved} 个 PDF 已改名并移入文献库`]);
+      loadLibrary(true);          // 列表刷新一下
+    }
+  }catch(e){
+    if(out) out.innerHTML = `<span style="color:var(--bad)">出错了：${esc(String(e))}</span>`;
+  }finally{
+    ORGBUSY = false;
+    if(btn && document.body.contains(btn)){ btn.disabled = false; btn.textContent = old; }
+  }
+}
+
+$('#btnOrganize').onclick = async () => {
+  const pop = $('#orgPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  if(!ORGDIR){
+    try{ const d = await jget('/api/organize/dir'); ORGDIR = d.dir || ''; }catch(e){}
+  }
+  renderOrgPop();
+  pop.hidden = false;
+};
+
+// ===================== Zotero 联动 =====================
+let ZOT = { ok: false }, ZSET = new Set(), ZOTGROUP = 'journal';
+let ZOTMODE = 'write', ZOTNAME = '', ZOTPLAN = null, ZOTDONE = null;
+
+async function loadZotero(force){
+  try{
+    const d = await jget('/api/zotero' + (force ? '?force=1' : ''));
+    ZOT = d;
+    ZSET = new Set((d.dois || []).map(x => String(x).toLowerCase()));
+  }catch(e){
+    ZOT = { ok: false, why: String(e) };
+    ZSET = new Set();
+  }
+  return ZOT;
+}
+
+function zotList(){ return libView(); }
+
+function zotDefaultName(){
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  const q = ($('#libQ').value || '').trim();
+  return '小工具导入 ' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+    + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + (q ? ' · ' + q.slice(0, 20) : '');
+}
+
+function renderZotPop(){
+  const pop = $('#zotPop');
+  if(!pop) return;
+  const d = ZOT, ok = !!d.ok;
+  const cols = d.collections || [];
+  const names = cols.slice(0, 5).map(c => c.name).filter(Boolean);
+  const list = zotList();
+  const haver = list.filter(it => it.doi && ZSET.has((it.doi || '').toLowerCase())).length;
+  const pending = list.length - haver;
+  if(!ZOTNAME) ZOTNAME = zotDefaultName();
+
+  let body = '';
+  if(ZOTMODE === 'rdf'){
+    body = `
+      <div class="exrow">
+        <span class="exchip ${ZOTGROUP === 'journal' ? 'on' : ''}" data-g="journal">按期刊分类</span>
+        <span class="exchip ${ZOTGROUP === 'year' ? 'on' : ''}" data-g="year">按年份分类</span>
+        <span class="exchip ${ZOTGROUP === 'single' ? 'on' : ''}" data-g="single">全放一个分类</span>
+      </div>
+      <div class="exmsg">生成 <code>.rdf</code>，在 Zotero 里 <b>文件 → 导入</b>。不碰你的数据库。</div>
+      <div class="exbar"><button id="zotGo">生成导入文件（${pending} 条）</button>
+        <button class="sm" id="zotCancel" style="background:#fff">取消</button></div>`;
+  }else if(ZOTDONE){
+    body = `
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        已写入 <b>${ZOTDONE.n}</b> 条到新分类<br>「<b>${esc(ZOTDONE.name)}</b>」
+        ${ZOTDONE.skipped ? `<br><span style="color:var(--ink3)">跳过已在库里的 ${ZOTDONE.skipped} 条</span>` : ''}
+        ${ZOTDONE.fail_n ? `<br><span style="color:var(--bad)">${ZOTDONE.fail_n} 条失败：${esc((ZOTDONE.failed || []).join('；'))}</span>` : ''}
+        <br><span style="color:var(--ink3)">去 Zotero 里刷新一下就能看到。</span>
+      </div>
+      <div class="exbar"><button id="zotUndo" style="background:#fff;color:var(--bad);border-color:var(--bad)">撤销这次写入</button>
+        <button class="sm" id="zotClose" style="background:#fff">关闭</button></div>`;
+  }else if(ZOTPLAN){
+    body = `
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        将新建分类「<b>${esc(ZOTPLAN.name)}</b>」，写入 <b>${ZOTPLAN.n}</b> 条
+        ${ZOTPLAN.skipped ? `（跳过已在库里的 ${ZOTPLAN.skipped} 条）` : ''}：<br>
+        ${ZOTPLAN.no_doi ? `<span style="color:var(--warn)">其中 ${ZOTPLAN.no_doi} 条没有 DOI，
+           没法判断 Zotero 里是否已有同名条目，写进去可能是重复的，先看一眼上面几条。</span><br>` : ''}
+        <span style="color:var(--ink3)">${(ZOTPLAN.sample || []).map(t => '· ' + esc(t)).join('<br>')}</span>
+      </div>
+      <div class="exbar"><button id="zotConfirm">确认写入</button>
+        <button class="sm" id="zotBack" style="background:#fff">返回</button></div>`;
+  }else{
+    body = `
+      <div class="exrow" style="flex-direction:column;gap:6px">
+        <input id="zotName" value="${esc(ZOTNAME)}" placeholder="新分类的名字"
+               style="font-size:12.5px;padding:6px 9px;width:100%">
+      </div>
+      <div class="exmsg">每次导入都<b>新建一个分类</b>，不会并进你已有的分类，也不会改动库里任何现有条目。<br>
+        已在库里的按 DOI 跳过；写进去的条目可以一键撤销。</div>
+      <div class="exbar"><button id="zotPreview">预览（${pending} 条）</button>
+        <button class="sm" id="zotCancel" style="background:#fff">取消</button></div>`;
+  }
+
+  pop.innerHTML = `
+    <div class="ap-title">Zotero 联动</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.7">
+      ${ok
+        ? `已连接 <b>${d.n_items}</b> 条目 · <b>${(d.dois || []).length}</b> 个 DOI · <b>${cols.length}</b> 个分类
+           ${names.length ? '<br><span style="color:var(--ink3)">现有：' + esc(names.join('、')) + (cols.length > 5 ? ' …' : '') + '</span>' : ''}`
+        : `没连上：${esc(d.why || '未知原因')}`}
+      ${d.data_dir ? `<br><span style="color:var(--ink3)">数据目录：${esc(shortPath(d.data_dir))}</span>` : ''}
+      ${d.last_written ? `<br><span style="color:var(--ink3)">上次写入：${esc(d.last_written.name)}（${d.last_written.n} 条）</span>` : ''}
+      ${ok ? '' : '<div style="margin-top:7px"><button class="sm" id="zotPickDir" style="background:#fff">选择 Zotero 数据目录</button></div>'}
+    </div>
+    <div class="exrow">
+      <span class="exchip ${ZOTMODE === 'write' ? 'on' : ''}" data-m="write">直接写入 Zotero</span>
+      <span class="exchip ${ZOTMODE === 'rdf' ? 'on' : ''}" data-m="rdf">生成 .rdf 手动导入</span>
+    </div>
+    ${body}`;
+
+  pop.querySelectorAll('.exchip').forEach(c => {
+    c.onclick = () => {
+      if(c.dataset.m){ ZOTMODE = c.dataset.m; ZOTPLAN = null; ZOTDONE = null; }
+      if(c.dataset.g) ZOTGROUP = c.dataset.g;
+      renderZotPop();
+    };
+  });
+  const on = (id, fn) => { const el = $('#' + id); if(el) el.onclick = fn; };
+  on('zotCancel', () => { pop.hidden = true; });
+  on('zotClose', () => { pop.hidden = true; });
+  on('zotBack', () => { ZOTPLAN = null; renderZotPop(); });
+  on('zotGo', doZotRdf);
+  on('zotPreview', doZotPreview);
+  on('zotConfirm', doZotWrite);
+  on('zotUndo', doZotUndo);
+  on('zotPickDir', async () => {
+    const p = await pickFolder('选 Zotero 的「数据目录」（里面有 zotero.sqlite）');
+    if(!p) return;
+    const r = await jpost('/api/zotero/dir', {path: p});
+    if(r.error){ alert(r.error); return; }
+    ZOT = r;
+    ZSET = new Set((r.dois || []).map(x => String(x).toLowerCase()));
+    renderZotPop();
+  });
+  const nm = $('#zotName');
+  if(nm) nm.oninput = () => { ZOTNAME = nm.value; };
+}
+
+function zotRows(){
+  return zotList().map(it => ({
+    title: it.title || '', doi: it.doi || '', journal: '', year: '',
+    first_author: '', path: it.file || ''
+  }));
+}
+
+async function doZotPreview(){
+  const list = zotList();
+  if(!list.length){ alert('当前列表是空的'); return; }
+  const btn = $('#zotPreview');
+  if(btn){ btn.disabled = true; btn.textContent = '检查中…'; }
+  try{
+    const out = await jpost('/api/zotero/write', {rows: zotRows(), name: ZOTNAME, dry_run: true});
+    if(out.error){ alert(out.error); return; }
+    if(!out.n){ alert(out.msg || '这些条目 Zotero 里都已经有了'); return; }
+    ZOTPLAN = out;
+    ZOTNAME = out.name;
+    renderZotPop();
+  }catch(e){
+    alert('预览失败：' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '预览'; }
+  }
+}
+
+async function doZotWrite(){
+  const btn = $('#zotConfirm');
+  if(btn){ btn.disabled = true; btn.textContent = '写入中…'; }
+  try{
+    const out = await jpost('/api/zotero/write', {rows: zotRows(), name: ZOTNAME});
+    if(out.error){ alert(out.error); return; }
+    ZOTDONE = out; ZOTPLAN = null;
+    await loadZotero(true);
+    renderZotPop();
+  }catch(e){
+    alert('写入失败：' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '确认写入'; }
+  }
+}
+
+async function doZotUndo(){
+  const btn = $('#zotUndo');
+  if(btn){ btn.disabled = true; btn.textContent = '撤销中…'; }
+  try{
+    const out = await jpost('/api/zotero/undo', {});
+    if(out.error){ alert(out.error); return; }
+    alert(`已撤销：删掉 ${out.items} 条`
+      + (out.collection_deleted ? '，分类也删了' : '，但分类没删掉，你手动删一下'));
+    ZOTDONE = null;
+    await loadZotero(true);
+    renderZotPop();
+  }catch(e){
+    alert('撤销失败：' + e);
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '撤销这次写入'; }
+  }
+}
+
+async function doZotRdf(){
+  const list = zotList();
+  if(!list.length){ alert('当前列表是空的'); return; }
+  const pop = $('#zotPop');
+  const go = $('#zotGo');
+  if(go){ go.disabled = true; go.textContent = '生成中…'; }
+  try{
+    const out = await jpost('/api/zotero/rdf', {
+      rows: zotRows(), group: ZOTGROUP, tag: ($('#libQ').value || '').trim(), skip_existing: true
+    });
+    if(out.error){ alert(out.error); if(go){ go.disabled = false; go.textContent = '重试'; } return; }
+    if(!out.n){
+      pop.innerHTML = `<div class="ap-title">不用导了</div>
+        <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0">${esc(out.msg || '这些条目 Zotero 里都已经有了')}</div>`;
+      return;
+    }
+    const nm = out.path.split(/[\\/]/).pop();
+    pop.innerHTML = `<div class="ap-title">已生成 Zotero 导入文件</div>
+      <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.8">
+        <b>${out.n}</b> 条${out.skipped ? `，跳过已在库里的 ${out.skipped} 条` : ''}<br>
+        → <a href="#" id="zotOpen">${esc(nm)}</a><br>
+        <span style="color:var(--ink3)">在 Zotero 里 <b>文件 → 导入</b>，选这个文件。</span>
+      </div>`;
+    const a = $('#zotOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: out.path}); };
+  }catch(e){
+    alert('生成失败：' + e);
+    if(go){ go.disabled = false; go.textContent = '重试'; }
+  }
+}
+
+$('#btnZot').onclick = async () => {
+  const pop = $('#zotPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  pop.innerHTML = '<div class="ap-title">正在读 Zotero…</div>';
+  pop.hidden = false;
+  await loadZotero();
+  ZOTPLAN = null; ZOTDONE = null; ZOTNAME = '';
+  renderZotPop();
+};
+
+// ===================== 库内搜索 =====================
+let KSTAT = {};
+
+async function loadKStatus(){
+  const box = $('#kStat');
+  try{
+    const d = await jget('/api/kstatus');
+    KSTAT = d;
+    if(d.built){
+      box.textContent = `索引 ${d.docs} 条：摘要 ${d.papers} · 笔记 ${d.notes} · 检索记录 ${d.records}`
+        + (d.skipped_pdf ? ` · 跳过 PDF ${d.skipped_pdf} 篇（不抽正文）` : '')
+        + (d.built_at ? ` · 建于 ${new Date(d.built_at * 1000).toLocaleString('zh-CN', {hour12: false})}` : '');
+    }else{
+      box.textContent = '索引还没建，点右边「重建索引」（几秒，取决于库的大小）';
+    }
+  }catch(e){ box.textContent = '读不到索引状态：' + e; }
+}
+
+$('#btnKBuild').onclick = async () => {
+  const btn = $('#btnKBuild');
+  btn.disabled = true; btn.textContent = '建索引中…';
+  $('#kStat').textContent = '正在扫描文献库 / 笔记 / 上次检索结果…';
+  try{
+    const d = await jpost('/api/kbuild', {});
+    if(d.error){ $('#kStat').textContent = '失败：' + d.error; return; }
+    await loadKStatus();
+  }catch(e){
+    $('#kStat').textContent = '失败：' + e;
+  }finally{
+    btn.disabled = false; btn.textContent = '重建索引';
+  }
+};
+
+function kCard(x){
+  const rel = Math.max(0.04, x.rel || 0);
+  const meta = [x.src, x.journal, x.year].filter(Boolean).join(' · ');
+  return `<div class="kcard" data-path="${esc(x.path || '')}" data-doi="${esc(x.doi || '')}">
+    <div class="kt">${esc(x.title || '(无标题)')}</div>
+    <div class="km"><span>${esc(meta)}</span>
+      <span class="kbar"><i style="width:${Math.round(rel * 100)}%"></i></span></div>
+    <div class="ks">${x.snippet || ''}</div>
+  </div>`;
+}
+
+async function doKSearch(){
+  const q = ($('#kq').value || '').trim();
+  if(!q){ $('#kq').focus(); return; }
+  const box = $('#kBox');
+  box.innerHTML = '<div class="empty">检索中…</div>';
+  try{
+    const d = await jpost('/api/ksearch', {q, k: +$('#kLimit').value || 30});
+    if(d.error){ box.innerHTML = `<div class="empty err">${esc(d.error)}</div>`; return; }
+    if(!d.n){
+      box.innerHTML = `<div class="empty">没命中。换个词，或先点「重建索引」。<br>
+        <span style="font-size:12px">实际查询式：${esc(d.expr || '')}</span></div>`;
+      return;
+    }
+    box.innerHTML = `<div class="libstat" style="padding:10px 12px 0">命中 ${d.n} 条
+        <span style="color:var(--ink3)"> · 查询式 ${esc(d.expr || '')}</span></div>`
+      + d.results.map(kCard).join('');
+    box.querySelectorAll('.kcard').forEach(c => {
+      c.onclick = () => {
+        const p = c.dataset.path;
+        if(p){ jpost('/api/open', {path: p}); return; }
+        if(c.dataset.doi) openUrl('https://doi.org/' + c.dataset.doi);
+      };
+    });
+  }catch(e){
+    box.innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+function renderNotesPop(){
+  const pop = $('#notesPop');
+  if(!pop) return;
+  const eff = KSTAT.notes_dirs || [];
+  const cfg = KSTAT.notes_cfg || [];
+  pop.innerHTML = `
+    <div class="ap-title">笔记目录 · 库内搜索会索引这里的 .md / .txt</div>
+    <div class="exmsg" style="margin-top:0;border-top:0;padding-top:0;line-height:1.9">
+      ${eff.length
+        ? eff.map(d => `<div style="display:flex;gap:8px;align-items:center">
+            <span style="flex:1;word-break:break-all">${esc(shortPath(d))}</span>
+            ${cfg.indexOf(d) >= 0
+              ? `<span data-del="${esc(d)}" title="移出索引" style="cursor:pointer;color:var(--bad);padding:0 3px">×</span>`
+              : '<span style="color:var(--ink3);font-size:11px">默认</span>'}
+          </div>`).join('')
+        : '还没有笔记目录'}
+    </div>
+    <div class="exbar"><button id="notesAdd">添加目录</button>
+      <button class="sm" id="notesClose" style="background:#fff">关闭</button></div>`;
+  pop.querySelectorAll('[data-del]').forEach(x => {
+    x.onclick = async () => {
+      const r = await jpost('/api/notes', {action: 'remove', path: x.dataset.del});
+      if(r.error){ alert(r.error); return; }
+      await loadKStatus(); renderNotesPop();
+    };
+  });
+  const add = $('#notesAdd');
+  if(add) add.onclick = async () => {
+    const p = await pickFolder('选你放笔记（.md / .txt）的文件夹');
+    if(!p) return;
+    const r = await jpost('/api/notes', {action: 'add', path: p});
+    if(r.error){ alert(r.error); return; }
+    await loadKStatus(); renderNotesPop();
+  };
+  const c = $('#notesClose');
+  if(c) c.onclick = () => { pop.hidden = true; };
+}
+
+$('#btnNotes').onclick = () => {
+  const pop = $('#notesPop');
+  if(!pop) return;
+  if(!pop.hidden){ pop.hidden = true; return; }
+  renderNotesPop();
+  pop.hidden = false;
+};
+
+$('#btnKSearch').onclick = doKSearch;
+$('#kq').addEventListener('keydown', e => { if(e.key === 'Enter') doKSearch(); });$('#libQ').oninput = () => renderLib();
+$('#libSort').onchange = () => renderLib();
+
+$('#btnLibExport').onclick = async () => {
+  const view = libView();
+  if(!view.length){ alert('没有可导出的条目'); return; }
+  const btn = $('#btnLibExport');
+  btn.disabled = true; btn.textContent = '导出中…';
+  try{
+    const rows = view.map(it => ({
+      name: it.name || '', title: it.title || '', doi: it.doi || '',
+      size_kb: it.size_kb || 0, mtime_txt: libDate(it.mtime), folder: it.folder || ''
+    }));
+    const out = await jpost('/api/library_export', {rows, fmt: 'xlsx'});
+    if(out.error){ alert(out.error); return; }
+    const nm = out.path.split(/[\\/]/).pop();
+    const head = $('#libBox .libstat');
+    if(head) head.innerHTML = `已导出 ${out.n} 条 → <a href="#" id="libOpen">${esc(nm)}</a>`;
+    const a = $('#libOpen');
+    if(a) a.onclick = ev => { ev.preventDefault(); jpost('/api/open', {path: out.path}); };
+  }catch(e){
+    alert('导出失败：' + e);
+  }finally{
+    btn.disabled = false; btn.textContent = '导出清单';
+  }
+};
+
+$('#btnOpenLib').onclick = async () => {
+  const r = await jpost('/api/open', {path: $('#libPath').textContent});
+  if(r.error) alert(r.error);
+};
+
+$('#btnAddSrc').onclick = async () => {
+  let p = '';
+  if(window.pywebview && pywebview.api && pywebview.api.pick_folder){
+    try { p = await pywebview.api.pick_folder(); } catch(e){ p = ''; }
+  }
+  if(!p){
+    p = prompt('粘贴要纳入的目录路径\n（例如 Zotero 的 storage 目录，或其上一级）') || '';
+  }
+  if(!p) return;
+  const r = await jpost('/api/sources', {action:'add', path:p});
+  if(r.error){ alert(r.error); return; }
+  log(['已添加文献来源：' + p]);
+  loadLibrary(true);
+};
+
+const CFG_READY = loadConfig();
+
+// 支持 ?tab=lib 直达文献库
+const _tab = new URLSearchParams(location.search).get('tab');
+if(_tab){
+  const el = document.querySelector(`.tab[data-pane="${_tab}"]`);
+  if(el) setTimeout(() => el.click(), 250);
+}
+// ===================== 在新窗口看全部 =====================
+function openUrl(u){
+  if(window.pywebview && pywebview.api && pywebview.api.open_url){
+    pywebview.api.open_url(u); return;
+  }
+  window.open(u, '_blank');
+}
+
+$('#btnOpenAll').onclick = () => {
+  const url = location.origin + '/?view=list';
+  if(window.pywebview && pywebview.api && pywebview.api.open_window){
+    pywebview.api.open_window(url, '全部检索结果');
+  } else {
+    window.open(url, '_blank', 'width=1240,height=880');
+  }
+};
+
+// ===================== list 视图（独立窗口）=====================
+let allRows = [];
+
+function renderAll(list){
+  if(!list.length){
+    $('#listBox').innerHTML = '<div class="empty">没有匹配的条目</div>';
+    return;
+  }
+  $('#listBox').innerHTML = `<table class="ltbl"><thead><tr>
+      <th style="width:40px">#</th>
+      <th>标题 / 作者 / 摘要</th>
+      <th style="width:190px">期刊</th>
+      <th style="width:54px">年</th>
+      <th style="width:52px">IF</th>
+      <th style="width:74px">分区</th>
+      <th style="width:54px">被引</th>
+      <th style="width:56px">OA</th>
+    </tr></thead><tbody>` +
+    list.map((r, n) => `<tr>
+      <td class="num-r">${n + 1}</td>
+      <td>
+        <div class="t">${esc(r.title)}</div>
+        ${zhCell(r)}
+        <div class="j">${esc(r.first_author || '')}${r.n_authors > 1 ? (' 等 ' + r.n_authors + ' 人') : ''}${
+          r.doi ? ' · <a href="#" data-doi="' + esc(r.doi) + '">' + esc(r.doi) + '</a>' : ''}</div>
+        ${absBox(r)}
+        ${meshRow(r)}
+      </td>
+      <td class="j">${typePill(r)}${esc(r.journal || '—')}</td>
+      <td>${r.year || ''}</td>
+      <td class="ifv" id="if-${r.i}">${ifCell(r)}</td>
+      <td id="cas-${r.i}">${casCell(r)}</td>
+      <td class="num-r">${r.cited_by || 0}</td>
+      <td>${r.is_oa ? '<span class="pill oa">OA</span>' : '<span class="pill sub">订阅</span>'}</td>
+    </tr>`).join('') + '</tbody></table>';
+
+  document.querySelectorAll('#listBox a[data-doi]').forEach(a => {
+    a.onclick = ev => {
+      ev.preventDefault();
+      openUrl('https://doi.org/' + a.dataset.doi);
+    };
+  });
+  bindAbsLinks('#listBox');
+  zhStart('#listBox', list);
+  rankStart('#listBox', list);
+}
+
+async function loadAll(){
+  $('#listBox').innerHTML = '<div class="empty">读取中…</div>';
+  try{
+    const d = await jget('/api/results');
+    allRows = d.results || [];
+    if(!allRows.length){
+      $('#listCount').textContent = '0 篇';
+      $('#listBox').innerHTML = '<div class="empty">还没有检索结果<br>'
+        + '<span style="font-size:12px">先回主窗口检索一次，再点「打开全部」</span></div>';
+      return;
+    }
+    $('#listCount').textContent = allRows.length + ' 篇';
+    renderAll(allRows);
+  }catch(e){
+    $('#listBox').innerHTML = `<div class="empty err">${esc(String(e))}</div>`;
+  }
+}
+
+if(new URLSearchParams(location.search).get('view') === 'list'){
+  document.querySelector('.tabs').style.display = 'none';
+  document.querySelector('.badges').style.display = 'none';
+  document.querySelector('.foot').style.display = 'none';
+  $('#pane-search').hidden = true;
+  $('#pane-list').hidden = false;
+  document.title = '全部检索结果 · 文献妙妙小工具';
+  CFG_READY.then(loadAll);
+  $('#listFind').oninput = ev => {
+    const k = ev.target.value.trim().toLowerCase();
+    if(!k){
+      renderAll(allRows);
+      $('#listCount').textContent = allRows.length + ' 篇';
+      return;
+    }
+    const f = allRows.filter(r =>
+      `${r.title} ${r.abstract || ''} ${r.journal || ''} ${r.doi || ''} ${r.first_author || ''}`
+        .toLowerCase().includes(k));
+    renderAll(f);
+    $('#listCount').textContent = `${f.length} / ${allRows.length} 篇`;
+  };
+}
+
+</script>
+</body>
+</html>
