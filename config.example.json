@@ -1,0 +1,23 @@
+{
+  "_说明": "email 必填（学校邮箱）。elsevier_api_key / elsevier_insttoken 怎么申请见「使用说明.pdf」",
+  "email": "",
+  "elsevier_api_key": "",
+  "elsevier_insttoken": "",
+  "library_dir": "",
+  "extra_sources": [],
+  "openalex_api_key": "",
+  "openalex_accounts": [],
+  "openalex_active": 0,
+  "save_format": "xmlgz",
+  "keep_preview_pdf": false,
+  "easyscholar_key": "",
+  "show_zh_title": true,
+  "notes_dirs": [],
+  "zotero_data_dir": "",
+  "pubmed_enrich": true,
+  "pubmed_api_key": "",
+  "semantic_scholar_key": "",
+  "rate_limit_rps": 1.0,
+  "max_downloads_per_run": 200,
+  "timeout": 30
+}
