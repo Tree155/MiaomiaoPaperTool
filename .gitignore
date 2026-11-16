@@ -1,0 +1,56 @@
+# ---- 你的配置（含明文密钥，绝对不要提交）----
+config.json
+config.broken.json
+config.tmp
+*.tmp
+
+# ---- 缓存与本地索引（都是你自己机器上的运行数据）----
+.cache_*.json
+.last_results.json
+.search.db
+.zotero.json
+startup.log
+error.log
+
+# ---- 运行产物：文献、导出、笔记 ----
+文献库/
+笔记/
+导出/
+# 英文版（源码/en）运行时的目录名
+library/
+export/
+to-download.html
+*.ris
+*.rdf
+*.bib
+*.xml.gz
+
+# ---- PDF：只保留四份文档（中英各两份），其他一律不进库 ----
+*.pdf
+!使用说明.pdf
+!User-Guide-EN.pdf
+!docs/源码说明.pdf
+!docs/Source-NOTES-EN.pdf
+
+# ---- 打包产物：走 GitHub Releases，不进仓库 ----
+*.exe
+*.zip
+dist/
+build/
+_release_stage/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+build/
+dist/
+*.spec
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
