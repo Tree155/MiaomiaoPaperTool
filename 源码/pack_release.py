@@ -29,8 +29,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def find_exe(lang: str = "zh") -> pathlib.Path:
-    """CI 里在 源码/[en/]dist/ 下；本地在仓库根目录。"""
-    order = ([ROOT / "源码" / "en" / "dist" / "MiaomiaoTool.exe"] if lang == "en" else []) + [
+    """CI 里在 src/[en/]dist/ 下（workflow 会先把中文目录复制成 src，避开编码问题）；
+    本地在 源码/dist/ 或仓库根目录。"""
+    order = ([ROOT / "src" / "en" / "dist" / "MiaomiaoTool.exe",
+              ROOT / "源码" / "en" / "dist" / "MiaomiaoTool.exe"] if lang == "en" else []) + [
+        ROOT / "src" / "dist" / "MiaomiaoTool.exe",
         ROOT / "源码" / "dist" / "MiaomiaoTool.exe",
         ROOT / "文献妙妙小工具.exe",
         ROOT / "源码" / "dist" / "文献妙妙小工具.exe",
