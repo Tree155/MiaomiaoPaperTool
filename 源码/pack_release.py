@@ -7,7 +7,7 @@
     python 源码/pack_release.py en v1.4.2-en
 
 产物：仓库根目录下
-    文献妙妙小工具-v1.4.2-zh.zip   中文版（含中文说明）
+    MiaomiaoTool-v1.4.2-zh.zip     中文版（含中文说明）
     MiaomiaoTool-v1.4.2-en.zip        English version (English docs only)
 
 两版**功能完全相同**，差别只有附带的文档语言；exe 在英文包里改名为 MiaomiaoTool.exe
@@ -60,7 +60,9 @@ def build(lang: str, tag: str) -> pathlib.Path:
         docs = [("使用说明.pdf", "使用说明.pdf"),
                 ("docs/源码说明.pdf", "docs/源码说明.pdf")]
         cfg = ROOT / "config.example.json"
-        zip_name = f"文献妙妙小工具-{tag}.zip"
+        # 中文文件名在 CI 上传 Release 时会丢字（Node 的 FormData 按 locale 编码），
+        # 所以 zip 用 ASCII 名，程序名和说明仍是中文
+        zip_name = f"MiaomiaoTool-{tag}-zh.zip"
     else:
         shutil.copy2(exe, stage / "MiaomiaoTool.exe")
         docs = [("User-Guide-EN.pdf", "User-Guide-EN.pdf"),

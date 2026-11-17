@@ -12,7 +12,7 @@ English: ..\docs\Source-NOTES-EN.pdf
     双击 重新打包.bat
 
 打发布包（GitHub Release 用，中英各一个）：
-    python pack_release.py zh v1.4.2        -> 文献妙妙小工具-v1.4.2.zip
+    python pack_release.py zh v1.4.2        -> MiaomiaoTool-v1.4.2-zh.zip
     python pack_release.py en v1.4.2-en     -> MiaomiaoTool-v1.4.2-en.zip
 
 英文版（English build）
