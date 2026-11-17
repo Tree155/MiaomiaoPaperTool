@@ -2,7 +2,7 @@ name: build
 
 # 推 main / 提 PR —— 只出 artifact（保留 30 天），不发 Release
 # 打 v* 标签 —— 自动出 Release，**中英各一个**：
-#     v1.4.2       → 中文版，附件 文献妙妙小工具-v1.4.2.zip
+#     v1.4.2       → 中文版，附件 MiaomiaoTool-v1.4.2-zh.zip
 #     v1.4.2-en    → English, 附件 MiaomiaoTool-v1.4.2-en.zip
 # 两个 Release 功能完全相同，差别是**语言**：中文版用 源码/ 构建，英文版用 源码/en/ 构建
 # （界面、日志、报错、导出表头、默认目录名全英文）。
