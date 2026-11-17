@@ -21,6 +21,12 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
+    # Windows runner 的控制台不是 UTF-8，Python 一 print 中文路径就抛
+    # UnicodeEncodeError: 'charmap' codec can't encode —— 前几次失败其实都是这个。
+    # PYTHONUTF8=1 打开 Python 的 UTF-8 模式，stdout/stderr 一律按 UTF-8 输出。
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
     steps:
       - uses: actions/checkout@v4
 
@@ -30,13 +36,12 @@ jobs:
           cache: pip
           cache-dependency-path: 源码/requirements.txt
 
-      # 中文目录名（源码/）在 Windows runner 的 shell 里会被按系统代码页解码 → 找不到文件。
-      # 换 shell 治不好（Git Bash 在 runner 上默认没有合适的 LANG），
-      # 所以先让 Python 复制一份纯英文路径：Python 的 os/glob 走 Windows Unicode API，读中文名没问题。
+      # 顺带把中文目录「源码/」复制成纯英文的 src/，后续步骤一律走 src（双保险）。
       - name: 准备英文路径
         shell: pwsh
         run: |
-          python -c "import glob,shutil,os;d=os.path.dirname(glob.glob('*/paperfetch.py')[0]);print('src dir =',d);shutil.copytree(d,'src')"
+          python -c "import os;print('cwd:',ascii(sorted(os.listdir('.')))[:300])"
+          python -c "import glob,shutil,os;fs=glob.glob('*/paperfetch.py');print('found',len(fs));assert fs,'paperfetch.py not found';d=os.path.dirname(fs[0]);shutil.copytree(d,'src');print('src items:',len(os.listdir('src')))"
 
       - name: 安装依赖
         shell: bash
