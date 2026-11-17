@@ -60,7 +60,7 @@ GitHub 上有**两个 Release，功能完全相同**，差别只在附带的文�
 
 | 版本 | Tag | 下载的附件 | 说明 |
 |---|---|---|---|
-| **中文版**<br>Chinese | `v1.4.2` | `文献妙妙小工具-v1.4.2.zip` | 中文界面 + 中文说明 |
+| **中文版**<br>Chinese | `v1.4.2` | `MiaomiaoTool-v1.4.2-zh.zip` | 中文界面 + 中文说明 |
 | **English** | `v1.4.2-en` | `MiaomiaoTool-v1.4.2-en.zip` | **Fully English UI** + English docs |
 
 > 两个包是同一份代码的两个构建：中文版界面全中文，英文版界面全英文（窗口、按钮、日志、报错、导出表头、Zotero 分类名都是英文），功能完全一样。
