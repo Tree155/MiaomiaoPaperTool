@@ -30,13 +30,19 @@ jobs:
           cache: pip
           cache-dependency-path: 源码/requirements.txt
 
+      # 中文目录名（源码/）在 Windows runner 的 shell 里会被按系统代码页解码 → 找不到文件。
+      # 换 shell 治不好（Git Bash 在 runner 上默认没有合适的 LANG），
+      # 所以先让 Python 复制一份纯英文路径：Python 的 os/glob 走 Windows Unicode API，读中文名没问题。
+      - name: 准备英文路径
+        shell: pwsh
+        run: |
+          python -c "import glob,shutil,os;d=os.path.dirname(glob.glob('*/paperfetch.py')[0]);print('src dir =',d);shutil.copytree(d,'src')"
+
       - name: 安装依赖
-        # runner 默认用 PowerShell，中文路径会按系统代码页解码成乱码，pip 找不到文件；
-        # Git Bash（MSYS2）是 UTF-8，所以含中文路径的步骤统一指定 bash
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install -r 源码/requirements.txt pyinstaller
+          pip install -r src/requirements.txt pyinstaller
 
       - name: 判断语言（tag 以 -en 结尾即英文版）
         id: lang
@@ -52,7 +58,7 @@ jobs:
       - name: 打包 exe（中文版）
         if: steps.lang.outputs.lang == 'zh'
         shell: bash
-        working-directory: 源码
+        working-directory: src
         # 注意：--add-data 在 Windows 上用分号分隔（Linux 是冒号）
         run: >
           python -m PyInstaller --noconfirm --clean --onefile --windowed
@@ -66,7 +72,7 @@ jobs:
       - name: 打包 exe（英文版）
         if: steps.lang.outputs.lang == 'en'
         shell: bash
-        working-directory: 源码/en
+        working-directory: src/en
         # 英文版是独立构建：源码在 源码/en/，界面/日志/报错全英文
         run: >
           python -m PyInstaller --noconfirm --clean --onefile --windowed
@@ -80,7 +86,7 @@ jobs:
       - name: 组装发布包
         shell: bash
         # 用 Python 打包：Compress-Archive 对中文文件名按系统代码页写，容易乱码
-        run: python 源码/pack_release.py ${{ steps.lang.outputs.lang }} ${{ github.ref_name }}
+        run: python src/pack_release.py ${{ steps.lang.outputs.lang }} ${{ github.ref_name }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -106,7 +112,7 @@ jobs:
             > exe 没有数字签名，第一次运行 SmartScreen 会提示"已保护你的电脑"
             > → 点「更多信息」→「仍要运行」。
 
-            详细说明见包里的 `使用说明.pdf`（25 页），源码说明在 `docs\源码说明.pdf`。
+            详细说明见包里的 `使用说明.pdf`（21 页），源码说明在 `docs\源码说明.pdf`。
 
             **English version**: 见 releases 页面里带 `-en` 的 tag。
 
